@@ -342,13 +342,22 @@
   async function searchAndClickEmoji(emoji) {
     log('Trying search method for:', emoji);
     
-    // Find search input in emoji picker - WhatsApp uses div with contenteditable
-    const searchInput = document.querySelector('div[contenteditable="true"][data-tab]') ||
-                        document.querySelector('div[contenteditable="true"]') ||
-                        document.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
+    // IMPORTANT: Find search input INSIDE the emoji picker dialog, not the main chat search
+    const dialog = document.querySelector('[role="dialog"]');
+    if (!dialog) {
+      log('No dialog found');
+      return false;
+    }
+    
+    log('Found dialog, looking for search input inside...');
+    
+    // Find search input inside the dialog
+    const searchInput = dialog.querySelector('div[contenteditable="true"][data-tab]') ||
+                        dialog.querySelector('div[contenteditable="true"]') ||
+                        dialog.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
     
     if (searchInput) {
-      log('Found search input:', searchInput.tagName);
+      log('Found search input in dialog:', searchInput.tagName);
       
       // Focus and type the emoji
       searchInput.focus();
@@ -394,26 +403,23 @@
       // Last resort: try to find and click the first emoji result that's NOT in the search box
       log('Keyboard navigation may have failed, trying direct click...');
       
-      const dialog = document.querySelector('[role="dialog"]');
-      if (dialog) {
-        const emojisInDialog = dialog.querySelectorAll('img.emoji, img[alt]');
-        for (const img of emojisInDialog) {
-          // Skip if in search input area
-          if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
-            continue;
-          }
-          if (img.alt === emoji) {
-            log('Found emoji in dialog:', img.alt);
-            img.scrollIntoView({ block: 'center' });
-            await sleep(50);
-            simulateClick(img);
-            return true;
-          }
+      const emojisInDialog = dialog.querySelectorAll('img.emoji, img[alt]');
+      for (const img of emojisInDialog) {
+        // Skip if in search input area
+        if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
+          continue;
+        }
+        if (img.alt === emoji) {
+          log('Found emoji in dialog:', img.alt);
+          img.scrollIntoView({ block: 'center' });
+          await sleep(50);
+          simulateClick(img);
+          return true;
         }
       }
       
     } else {
-      log('No search input found');
+      log('No search input found in dialog');
     }
     
     return false;
