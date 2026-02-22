@@ -136,24 +136,32 @@
    * Find and click emoji in the open picker
    */
   async function findAndClickEmoji(emoji) {
-    // Look for emoji images in the picker
-    const allEmojiImgs = document.querySelectorAll('img.emoji, img[alt]');
+    log('Searching for emoji in picker:', emoji);
+    
+    // WhatsApp uses img.emojik for emojis in picker too
+    const allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji, img[alt]');
+    log('Found', allEmojiImgs.length, 'emoji images in picker');
     
     for (const img of allEmojiImgs) {
-      if (img.alt === emoji) {
-        log('Found emoji image:', emoji);
-        const button = img.closest('div[role="button"]') || img.closest('button') || img.parentElement;
+      // Check alt attribute - WhatsApp stores emoji character in alt
+      if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
+        log('Found emoji image with alt:', img.alt);
+        const button = img.closest('div[role="button"]') || img.closest('button') || img.closest('span[data-testid]') || img.parentElement;
         if (button) {
+          log('Clicking button for emoji');
           button.click();
           return true;
         }
+        // If no button wrapper, click the image itself
+        img.click();
+        return true;
       }
     }
     
     // Also try looking for span elements with the emoji
-    const allSpans = document.querySelectorAll('span');
+    const allSpans = document.querySelectorAll('span[data-testid], span');
     for (const span of allSpans) {
-      if (span.textContent === emoji && span.textContent.length <= 2) {
+      if (span.textContent === emoji || span.textContent.trim() === emoji) {
         const button = span.closest('div[role="button"]') || span.closest('button') || span.parentElement;
         if (button) {
           log('Found emoji span:', emoji);
@@ -163,6 +171,10 @@
       }
     }
     
+    // Log what we found for debugging
+    const sampleAlts = Array.from(allEmojiImgs).slice(0, 10).map(img => img.alt);
+    log('Sample alts found:', sampleAlts.join(', '));
+    
     return false;
   }
 
@@ -170,32 +182,52 @@
    * Search for emoji if not immediately visible
    */
   async function searchAndClickEmoji(emoji) {
-    // Find search input in emoji picker
-    const searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
+    log('Trying search method for:', emoji);
+    
+    // Find search input in emoji picker - WhatsApp uses div with contenteditable
+    const searchInput = document.querySelector('div[contenteditable="true"][data-tab]') ||
+                        document.querySelector('div[contenteditable="true"]') ||
+                        document.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
     
     if (searchInput) {
-      log('Found search input, searching for:', emoji);
+      log('Found search input:', searchInput.tagName);
       
       // Focus and type the emoji
       searchInput.focus();
-      searchInput.value = emoji;
-      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+      
+      // For contenteditable divs
+      if (searchInput.contentEditable === 'true') {
+        searchInput.textContent = emoji;
+        searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: emoji }));
+      } else {
+        searchInput.value = emoji;
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
       
       // Wait for search results
-      await sleep(300);
+      await sleep(500);
       
       // Try to find and click the emoji now
       const found = await findAndClickEmoji(emoji);
       if (found) return true;
       
       // Try clicking any emoji button that appears
-      const emojiButtons = document.querySelectorAll('div[role="button"] img[alt]');
+      const emojiButtons = document.querySelectorAll('img.emojik[alt], div[role="button"] img[alt]');
+      log('Found', emojiButtons.length, 'emoji buttons after search');
       for (const img of emojiButtons) {
         if (img.alt === emoji) {
-          img.closest('div[role="button"]')?.click();
+          log('Found matching emoji after search:', img.alt);
+          const btn = img.closest('div[role="button"]');
+          if (btn) {
+            btn.click();
+          } else {
+            img.click();
+          }
           return true;
         }
       }
+    } else {
+      log('No search input found');
     }
     
     return false;
