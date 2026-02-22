@@ -166,12 +166,26 @@
       view: window,
       clientX: centerX,
       clientY: centerY,
-      button: 0
+      screenX: centerX,
+      screenY: centerY,
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      pointerType: 'mouse',
+      isPrimary: true
     };
     
+    // Pointer events (React often uses these)
+    element.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
+    element.dispatchEvent(new PointerEvent('pointerup', eventOptions));
+    
+    // Mouse events
     element.dispatchEvent(new MouseEvent('mousedown', eventOptions));
     element.dispatchEvent(new MouseEvent('mouseup', eventOptions));
     element.dispatchEvent(new MouseEvent('click', eventOptions));
+    
+    // Also try native click
+    element.click();
     
     log('Click events dispatched');
   }
@@ -190,14 +204,40 @@
       // Check alt attribute - WhatsApp stores emoji character in alt
       if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
         log('Found emoji image with alt:', img.alt);
-        const button = img.closest('div[role="button"]') || img.closest('button') || img.closest('span[data-testid]') || img.parentElement;
-        if (button) {
-          log('Clicking button for emoji');
-          simulateClick(button);
-          return true;
+        
+        // Log parent hierarchy for debugging
+        let el = img;
+        let hierarchy = [];
+        for (let i = 0; i < 8 && el; i++) {
+          const role = el.getAttribute && el.getAttribute('role');
+          hierarchy.push(el.tagName + (role ? `[role=${role}]` : ''));
+          el = el.parentElement;
         }
-        // If no button wrapper, click the image itself
+        log('IMG hierarchy:', hierarchy.join(' -> '));
+        
+        // Try clicking up the tree to find a clickable ancestor
+        let clickTarget = img;
+        let current = img.parentElement;
+        while (current && current.tagName !== 'BODY') {
+          const role = current.getAttribute('role');
+          if (role === 'button' || role === 'gridcell' || role === 'listitem' || role === 'option') {
+            clickTarget = current;
+            break;
+          }
+          // Check for data-testid as potential click target
+          if (current.hasAttribute('data-testid')) {
+            clickTarget = current;
+          }
+          current = current.parentElement;
+        }
+        
+        log('Click target:', clickTarget.tagName, clickTarget.className);
+        simulateClick(clickTarget);
+        
+        // Also try img directly after a small delay
+        await sleep(50);
         simulateClick(img);
+        
         return true;
       }
     }
