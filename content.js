@@ -46,7 +46,7 @@
   /**
    * Create an emoji overlay on top of the WhatsApp sprite image
    */
-  function createEmojiOverlay(imgElement, emoji) {
+  function createEmojiOverlay(imgElement, emoji, button) {
     // Hide the original sprite
     imgElement.style.opacity = '0';
     
@@ -65,7 +65,140 @@
     }
     
     overlay.textContent = emoji;
+    
+    // Add click interceptor to the button
+    if (!button.hasAttribute('data-balcanize-intercepted')) {
+      button.setAttribute('data-balcanize-intercepted', 'true');
+      
+      button.addEventListener('click', async (e) => {
+        const targetEmoji = button.getAttribute('data-balcanize-emoji');
+        if (targetEmoji) {
+          e.stopPropagation();
+          e.preventDefault();
+          log('Intercepted click, sending emoji:', targetEmoji);
+          await sendCustomReaction(targetEmoji);
+        }
+      }, true); // capture phase
+    }
+    
     log('Created overlay for', emoji);
+  }
+
+  /**
+   * Send custom reaction by opening emoji picker and selecting the emoji
+   */
+  async function sendCustomReaction(emoji) {
+    log('Sending custom reaction:', emoji);
+    
+    // Find the "+" (more reactions) button
+    let moreButton = document.querySelector('div[role="button"][aria-label="Diğer ifadeler"]') ||
+                     document.querySelector('div[role="button"][aria-label="More reactions"]') ||
+                     document.querySelector('div[role="button"][aria-label="All reactions"]');
+    
+    if (!moreButton) {
+      log('More button not found, trying to find by content...');
+      // Try to find by the plus icon
+      const allButtons = document.querySelectorAll('div[role="button"]');
+      for (const btn of allButtons) {
+        if (btn.textContent.includes('+') || btn.textContent.includes('plus')) {
+          moreButton = btn;
+          break;
+        }
+      }
+    }
+    
+    if (moreButton) {
+      log('Found more button, clicking...');
+      moreButton.click();
+      
+      // Wait for emoji picker to open
+      await sleep(300);
+      
+      // Find the emoji in the picker
+      const found = await findAndClickEmoji(emoji);
+      if (!found) {
+        log('Could not find emoji in picker, searching...');
+        await searchAndClickEmoji(emoji);
+      }
+    } else {
+      warn('Could not find more reactions button');
+    }
+  }
+
+  /**
+   * Sleep helper
+   */
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Find and click emoji in the open picker
+   */
+  async function findAndClickEmoji(emoji) {
+    // Look for emoji images in the picker
+    const allEmojiImgs = document.querySelectorAll('img.emoji, img[alt]');
+    
+    for (const img of allEmojiImgs) {
+      if (img.alt === emoji) {
+        log('Found emoji image:', emoji);
+        const button = img.closest('div[role="button"]') || img.closest('button') || img.parentElement;
+        if (button) {
+          button.click();
+          return true;
+        }
+      }
+    }
+    
+    // Also try looking for span elements with the emoji
+    const allSpans = document.querySelectorAll('span');
+    for (const span of allSpans) {
+      if (span.textContent === emoji && span.textContent.length <= 2) {
+        const button = span.closest('div[role="button"]') || span.closest('button') || span.parentElement;
+        if (button) {
+          log('Found emoji span:', emoji);
+          button.click();
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Search for emoji if not immediately visible
+   */
+  async function searchAndClickEmoji(emoji) {
+    // Find search input in emoji picker
+    const searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
+    
+    if (searchInput) {
+      log('Found search input, searching for:', emoji);
+      
+      // Focus and type the emoji
+      searchInput.focus();
+      searchInput.value = emoji;
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+      
+      // Wait for search results
+      await sleep(300);
+      
+      // Try to find and click the emoji now
+      const found = await findAndClickEmoji(emoji);
+      if (found) return true;
+      
+      // Try clicking any emoji button that appears
+      const emojiButtons = document.querySelectorAll('div[role="button"] img[alt]');
+      for (const img of emojiButtons) {
+        if (img.alt === emoji) {
+          img.closest('div[role="button"]')?.click();
+          return true;
+        }
+      }
+    }
+    
+    return false;
   }
 
   /**
@@ -95,8 +228,8 @@
         if (img) {
           const newEmoji = customEmojis[index];
           log('Button', index, ':', img.alt, '->', newEmoji);
-          createEmojiOverlay(img, newEmoji);
           button.setAttribute('data-balcanize-emoji', newEmoji);
+          createEmojiOverlay(img, newEmoji, button);
         }
       }
     });
