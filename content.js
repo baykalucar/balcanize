@@ -284,6 +284,15 @@
     // Also try looking for span elements with the emoji
     const allSpans = document.querySelectorAll('span[data-testid], span');
     for (const span of allSpans) {
+      // SKIP our own overlay elements
+      if (span.classList.contains('balcanize-overlay')) {
+        continue;
+      }
+      // SKIP elements inside our modified buttons
+      if (span.closest('[data-balcanize-intercepted]')) {
+        continue;
+      }
+      
       if (span.textContent === emoji || span.textContent.trim() === emoji) {
         // Log the parent hierarchy for debugging
         let el = span;
@@ -303,7 +312,7 @@
                        span.closest('button') ||
                        span.closest('[data-testid]');
         
-        if (button && button.tagName !== 'P') {
+        if (button && button.tagName !== 'P' && !button.hasAttribute('data-balcanize-intercepted')) {
           log('Found emoji span, clicking wrapper:', button.tagName);
           simulateClick(button);
           return true;
