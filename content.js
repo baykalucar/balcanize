@@ -353,60 +353,65 @@
       // Focus and type the emoji
       searchInput.focus();
       
-      // For contenteditable divs
+      // Clear any existing content first
       if (searchInput.contentEditable === 'true') {
-        searchInput.textContent = emoji;
-        searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: emoji }));
-      } else {
-        searchInput.value = emoji;
-        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        searchInput.innerHTML = '';
       }
       
-      // Wait for search results
-      await sleep(800);
+      // Type the emoji using execCommand for better compatibility
+      document.execCommand('insertText', false, emoji);
+      searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: emoji }));
       
-      // Look for emoji in search results - find images with matching alt
-      const searchResults = document.querySelectorAll('img.emoji[alt], img[alt]');
-      log('Found', searchResults.length, 'images after search');
+      // Wait for search results to appear
+      await sleep(1000);
       
-      for (const img of searchResults) {
-        // Skip images in the search input itself
-        if (img.closest('[role="textbox"]') || img.closest('[contenteditable="true"]')) {
-          continue;
-        }
-        
-        if (img.alt === emoji) {
-          log('Found search result with alt:', img.alt);
-          
-          // Scroll into view and click
-          img.scrollIntoView({ block: 'center', behavior: 'instant' });
-          await sleep(100);
-          
-          const rect = img.getBoundingClientRect();
-          log('Search result position:', rect.left, rect.top);
-          
-          // Try clicking the image or its parent
-          const clickable = img.closest('div[role="button"]') || img.closest('button') || img;
-          simulateClick(clickable);
-          return true;
-        }
+      // Try keyboard navigation - Tab to move to results, Enter to select
+      log('Trying keyboard navigation...');
+      
+      // Press Tab to move focus to results
+      searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', keyCode: 9, bubbles: true }));
+      await sleep(100);
+      
+      // Press Enter to select
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+      await sleep(100);
+      
+      // Also try ArrowDown + Enter approach
+      searchInput.focus();
+      searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', keyCode: 40, bubbles: true }));
+      await sleep(100);
+      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+      
+      await sleep(200);
+      
+      // Check if picker is still open - if not, we succeeded
+      const pickerStillOpen = document.querySelector('[role="dialog"]');
+      if (!pickerStillOpen) {
+        log('Picker closed - reaction probably sent!');
+        return true;
       }
       
-      // Also try finding by looking at visible emoji grid
-      const emojiGrid = document.querySelector('[role="grid"], [role="listbox"]');
-      if (emojiGrid) {
-        log('Found emoji grid');
-        const gridImages = emojiGrid.querySelectorAll('img[alt]');
-        for (const img of gridImages) {
+      // Last resort: try to find and click the first emoji result that's NOT in the search box
+      log('Keyboard navigation may have failed, trying direct click...');
+      
+      const dialog = document.querySelector('[role="dialog"]');
+      if (dialog) {
+        const emojisInDialog = dialog.querySelectorAll('img.emoji, img[alt]');
+        for (const img of emojisInDialog) {
+          // Skip if in search input area
+          if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
+            continue;
+          }
           if (img.alt === emoji) {
-            log('Found emoji in grid:', img.alt);
-            img.scrollIntoView({ block: 'center', behavior: 'instant' });
-            await sleep(100);
+            log('Found emoji in dialog:', img.alt);
+            img.scrollIntoView({ block: 'center' });
+            await sleep(50);
             simulateClick(img);
             return true;
           }
         }
       }
+      
     } else {
       log('No search input found');
     }
