@@ -68,7 +68,7 @@ const EMOJI_NAMES = {
   '🥳': 'partying party parti kutlama',
   '🥸': 'disguise kılık değiştirme',
   '😎': 'sunglasses güneş gözlüğü cool havalı',
-  '🤓': 'nerd inek gözlüklü',
+  '🤓': 'nerd inek gözlüklü abiler fetö',
   '🧐': 'monocle tek gözlük',
   '😕': 'confused kafası karışık',
   '😟': 'worried endişeli',
@@ -385,7 +385,7 @@ const EMOJI_NAMES = {
   '♣️': 'club suit sinek',
   '🃏': 'joker',
   '🀄': 'mahjong',
-  '🌈': 'rainbow gökkuşağı',
+  '🌈': 'rainbow gökkuşağı gay pride',
   '☀️': 'sun güneş sunny',
   '🌙': 'moon ay gece',
   '⭐': 'star yıldız',
@@ -488,6 +488,7 @@ const ALL_EMOJIS = [
   '🌸', '💮', '🏵️', '🌹', '🥀', '🌺', '🌻', '🌼', '🌷', '🌱',
   '🪴', '🌲', '🌳', '🌴', '🌵', '🌾', '🌿', '☘️', '🍀', '🍁',
   '🍂', '🍃', '🍄', '🌰', '🦀', '🦞', '🦐', '🦑', '🐙', '🦪',
+  '🌈', '☀️', '🌙', '⭐', '☁️', '⛈️', '🌧️', '❄️', '🌊', '🏖️',
   
   // Food & Drink
   '🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐',
