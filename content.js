@@ -299,75 +299,75 @@
 
   /**
    * Find and click emoji in the open picker
+   * WhatsApp uses SPAN elements with data-emoji attribute, NOT img elements!
    */
   async function findAndClickEmoji(emoji) {
     log('Searching for emoji in picker:', emoji);
     
-    // WhatsApp uses img.emojik for emojis in picker too
-    let allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji');
-    log('Found', allEmojiImgs.length, 'emoji images in picker');
+    // WhatsApp emojis are SPAN elements with role="button" and data-emoji attribute
+    // Structure: <div role="gridcell" aria-label="😙"><span role="button" data-emoji="😙" class="emojik">
     
-    // Log some details about the images
-    const sampleImgs = Array.from(allEmojiImgs).slice(0, 15);
-    for (const img of sampleImgs) {
-      log('Emoji img:', 'alt=' + img.alt, 'src=' + img.src?.substring(0, 50), 'class=' + img.className);
+    // Method 1: Find by data-emoji attribute (most reliable)
+    let emojiSpan = document.querySelector(`span[data-emoji="${emoji}"]`);
+    if (emojiSpan && !emojiSpan.closest('[data-balcanize-intercepted]')) {
+      log('Found emoji by data-emoji attribute:', emoji);
+      return await clickEmojiElement(emojiSpan);
     }
     
-    // First pass: check currently visible emojis
-    for (const img of allEmojiImgs) {
-      // Skip emojis in our modified buttons
-      if (img.closest('[data-balcanize-intercepted]')) {
-        continue;
+    // Method 2: Find by gridcell aria-label
+    let gridcell = document.querySelector(`div[role="gridcell"][aria-label="${emoji}"]`);
+    if (gridcell && !gridcell.closest('[data-balcanize-intercepted]')) {
+      log('Found emoji by gridcell aria-label:', emoji);
+      const span = gridcell.querySelector('span[role="button"]');
+      if (span) {
+        return await clickEmojiElement(span);
       }
+      return await clickEmojiElement(gridcell);
+    }
+    
+    // Method 3: Search all emoji spans
+    const allEmojiSpans = document.querySelectorAll('span.emojik[role="button"]');
+    log('Found', allEmojiSpans.length, 'emoji spans in picker');
+    
+    for (const span of allEmojiSpans) {
+      if (span.closest('[data-balcanize-intercepted]')) continue;
       
-      if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
-        log('Found emoji image with alt:', img.alt);
-        return await clickEmojiImage(img);
+      const spanEmoji = span.getAttribute('data-emoji') || span.getAttribute('aria-label');
+      if (spanEmoji === emoji) {
+        log('Found emoji in span search:', spanEmoji);
+        return await clickEmojiElement(span);
       }
     }
     
-    // Second pass: scroll through the picker to find the emoji
+    // Method 4: Scroll and search
     log('Emoji not found in visible area, scrolling to search...');
     const scrollContainer = findScrollableEmojiContainer();
     
     if (scrollContainer) {
-      log('Found scrollable container:', scrollContainer.tagName, scrollContainer.className?.substring(0, 30));
-      
-      // Scroll through the container looking for the emoji
+      log('Found scrollable container, searching by scroll...');
       const scrollHeight = scrollContainer.scrollHeight;
-      const clientHeight = scrollContainer.clientHeight;
       let scrollTop = 0;
-      const scrollStep = clientHeight / 2; // Scroll half a page at a time
+      const scrollStep = 200;
       
       while (scrollTop < scrollHeight) {
         scrollContainer.scrollTop = scrollTop;
-        await sleep(100); // Wait for lazy loading
+        await sleep(150);
         
         // Check for emoji after each scroll
-        allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji');
-        for (const img of allEmojiImgs) {
-          if (img.closest('[data-balcanize-intercepted]')) {
-            continue;
-          }
-          if (img.alt === emoji) {
-            log('Found emoji after scrolling!', img.alt);
-            return await clickEmojiImage(img);
-          }
+        emojiSpan = document.querySelector(`span[data-emoji="${emoji}"]`);
+        if (emojiSpan && !emojiSpan.closest('[data-balcanize-intercepted]')) {
+          log('Found emoji after scrolling!');
+          return await clickEmojiElement(emojiSpan);
         }
         
         scrollTop += scrollStep;
-        
-        // Safety limit to avoid infinite loop
-        if (scrollTop > 5000) {
-          log('Scroll limit reached');
-          break;
-        }
+        if (scrollTop > 12000) break; // Safety limit
       }
     }
     
-    // Log what we found for debugging
-    const sampleAlts = Array.from(allEmojiImgs).slice(0, 10).map(img => img.alt);
-    log('Sample alts found:', sampleAlts.join(', '));
+    // Log samples for debugging
+    const samples = Array.from(document.querySelectorAll('span[data-emoji]')).slice(0, 10);
+    log('Sample emojis found:', samples.map(s => s.getAttribute('data-emoji')).join(', '));
     
     return false;
   }
@@ -376,271 +376,144 @@
    * Find the scrollable container for emojis
    */
   function findScrollableEmojiContainer() {
-    // Look for elements with overflow scroll/auto that contain emojis
-    const candidates = document.querySelectorAll('div');
-    for (const div of candidates) {
+    // Look for the div with x1n2onr6 class that contains emoji grid
+    const containers = document.querySelectorAll('div.x1n2onr6');
+    for (const div of containers) {
       const style = window.getComputedStyle(div);
-      const hasOverflow = style.overflowY === 'scroll' || style.overflowY === 'auto';
-      const hasEmojis = div.querySelectorAll('img.emojik').length > 10;
+      const hasOverflow = style.overflowY === 'scroll' || style.overflowY === 'auto' || 
+                          style.overflow === 'auto' || style.overflow === 'scroll';
+      const hasEmojis = div.querySelectorAll('span.emojik').length > 5;
       
       if (hasOverflow && hasEmojis) {
         const rect = div.getBoundingClientRect();
-        // Make sure it's visible and reasonably sized
-        if (rect.width > 100 && rect.height > 100 && rect.top >= 0) {
+        if (rect.height > 100) {
           return div;
         }
       }
     }
     
-    // Fallback: find container with most emojis
-    let bestContainer = null;
-    let maxEmojis = 0;
-    for (const div of candidates) {
-      const emojiCount = div.querySelectorAll('img.emojik').length;
-      if (emojiCount > maxEmojis && emojiCount > 10) {
-        const rect = div.getBoundingClientRect();
-        if (rect.width > 100 && rect.height > 100) {
-          maxEmojis = emojiCount;
-          bestContainer = div;
-        }
+    // Fallback: find any scrollable container with emojis
+    const allDivs = document.querySelectorAll('div');
+    for (const div of allDivs) {
+      const style = window.getComputedStyle(div);
+      const hasOverflow = style.overflowY === 'scroll' || style.overflowY === 'auto';
+      const hasEmojis = div.querySelectorAll('span.emojik').length > 10;
+      
+      if (hasOverflow && hasEmojis) {
+        return div;
       }
     }
     
-    return bestContainer;
+    return null;
   }
   
   /**
-   * Click on an emoji image
+   * Click on an emoji element (span or gridcell)
    */
-  async function clickEmojiImage(img) {
+  async function clickEmojiElement(element) {
+    log('Clicking emoji element:', element.tagName, element.getAttribute('data-emoji'));
+    
     // Scroll into view first
-    img.scrollIntoView({ block: 'center', behavior: 'instant' });
+    element.scrollIntoView({ block: 'center', behavior: 'instant' });
     await sleep(100);
     
-    // Get position after scroll
-    const rect = img.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    // Get the span with role="button" for clicking
+    const clickTarget = element.matches('span[role="button"]') ? element : 
+                        element.querySelector('span[role="button"]') || element;
     
-    log('Emoji position:', centerX, centerY);
+    // Try multiple click methods
     
-    // Find clickable parent
-    const clickable = img.closest('[role="gridcell"]') || 
-                     img.closest('[role="button"]') || 
-                     img.closest('button') ||
-                     img.parentElement;
+    // 1. Native click
+    clickTarget.click();
+    log('Native click sent');
     
-    if (clickable && clickable !== img) {
-      log('Clicking wrapper:', clickable.tagName);
-      simulateClick(clickable);
-    }
-    
-    // Also click the image directly
-    simulateClick(img);
-    
-    // Try clicking at coordinates
     await sleep(50);
-    const elementAtPoint = document.elementFromPoint(centerX, centerY);
-    if (elementAtPoint && elementAtPoint !== img) {
-      log('Clicking element at point:', elementAtPoint.tagName);
-      simulateClick(elementAtPoint);
+    
+    // 2. Simulated click with full event chain
+    simulateClick(clickTarget);
+    
+    // 3. Also click the parent gridcell
+    const gridcell = clickTarget.closest('[role="gridcell"]');
+    if (gridcell && gridcell !== clickTarget) {
+      gridcell.click();
+      simulateClick(gridcell);
     }
+    
+    // 4. Focus and Enter key
+    clickTarget.focus();
+    clickTarget.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+    clickTarget.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', keyCode: 13, bubbles: true }));
     
     return true;
   }
 
   /**
-   * Search for emoji if not immediately visible
+   * Search for emoji using the search box
    */
   async function searchAndClickEmoji(emoji) {
     log('Trying search method for:', emoji);
     
-    // Get the emoji name for searching (WhatsApp uses text search, not emoji search)
+    // Get the emoji name for searching (WhatsApp uses text search, not emoji characters)
     const searchTerm = EMOJI_NAMES[emoji] || emoji;
     log('Search term:', searchTerm, 'for emoji:', emoji);
     
-    // Wait a bit more for picker to fully render
-    await sleep(500);
+    // Wait for picker to render
+    await sleep(300);
     
-    // Find the emoji picker container - try multiple selectors
-    // WhatsApp doesn't always use role="dialog" for the picker
-    let pickerContainer = document.querySelector('[role="dialog"]') ||
-                          document.querySelector('[data-testid="emoji-picker"]') ||
-                          document.querySelector('[aria-label*="Emoji"]') ||
-                          document.querySelector('[aria-label*="emoji"]') ||
-                          document.querySelector('.emoji-panel') ||
-                          document.querySelector('[data-tab="emoji"]');
+    // Find the search input - it's an input with role="searchbox" or placeholder containing "Ara" or "Search"
+    let searchInput = document.querySelector('input[role="searchbox"]') ||
+                      document.querySelector('input[placeholder*="İfade Ara"]') ||
+                      document.querySelector('input[placeholder*="Search emoji"]') ||
+                      document.querySelector('input._ahyt') ||
+                      document.querySelector('input.copyable-text[type="text"]');
     
-    // If still not found, look for a container that has many emoji images
-    if (!pickerContainer) {
-      log('No standard picker container found, searching by emoji content...');
-      const allContainers = document.querySelectorAll('div');
-      for (const container of allContainers) {
-        const emojiCount = container.querySelectorAll('img.emojik, img.emoji').length;
-        // Look for a container with many emojis that's not the reaction bar
-        if (emojiCount > 20 && !container.closest('[data-balcanize-intercepted]')) {
-          // Make sure it's a reasonably sized panel
-          const rect = container.getBoundingClientRect();
-          if (rect.width > 200 && rect.height > 200) {
-            pickerContainer = container;
-            log('Found picker container by emoji count:', emojiCount);
-            break;
-          }
-        }
-      }
-    }
-    
-    if (!pickerContainer) {
-      log('No picker container found, listing all elements with emojis...');
-      const emojis = document.querySelectorAll('img.emojik');
-      if (emojis.length > 0) {
-        // Use the parent of the first emoji as container
-        let parent = emojis[0].parentElement;
-        while (parent && parent !== document.body) {
-          const rect = parent.getBoundingClientRect();
-          if (rect.width > 200 && rect.height > 200) {
-            pickerContainer = parent;
-            log('Using emoji parent as container:', parent.tagName, parent.className);
-            break;
-          }
-          parent = parent.parentElement;
-        }
-      }
-    }
-    
-    if (!pickerContainer) {
-      log('Still no picker container found');
-      // Fall back to searching entire document
-      pickerContainer = document.body;
-    }
-    
-    log('Found picker container:', pickerContainer.tagName, pickerContainer.className?.substring(0, 50));
-    
-    // Find search input inside the picker - try multiple selectors
-    let searchInput = pickerContainer.querySelector('div[contenteditable="true"][role="textbox"]') ||
-                      pickerContainer.querySelector('div[contenteditable="true"][data-tab]') ||
-                      pickerContainer.querySelector('div[contenteditable="true"]') ||
-                      pickerContainer.querySelector('[role="textbox"]') ||
-                      pickerContainer.querySelector('input[placeholder*="Search"]') ||
-                      pickerContainer.querySelector('input[placeholder*="search"]') ||
-                      pickerContainer.querySelector('input[placeholder*="Ara"]') ||
-                      pickerContainer.querySelector('input[type="text"]') ||
-                      pickerContainer.querySelector('input');
-    
-    // Also try finding in the whole document if not in picker
     if (!searchInput) {
-      log('No search input in picker, trying document-wide search...');
-      // Find all textboxes and filter to one in/near emoji area
-      const allTextboxes = document.querySelectorAll('[role="textbox"], [contenteditable="true"], input[type="text"]');
-      log('Found', allTextboxes.length, 'textboxes in document');
-      
-      for (const tb of allTextboxes) {
-        // Skip the main chat input
-        if (tb.closest('[data-testid="conversation-compose-box"]') || 
-            tb.closest('.copyable-text') ||
-            tb.getAttribute('data-tab') === '10') { // Main chat input often has data-tab="10"
-          continue;
-        }
+      log('No search input found by primary selectors, searching all inputs...');
+      const allInputs = document.querySelectorAll('input[type="text"]');
+      for (const input of allInputs) {
+        // Skip main chat input
+        if (input.closest('[data-testid="conversation-compose-box"]')) continue;
+        if (input.getAttribute('data-tab') === '10') continue;
         
-        // Check if this textbox is near emoji content
-        const parent = tb.closest('div');
-        if (parent) {
-          const rect = tb.getBoundingClientRect();
-          log('Textbox:', tb.tagName, 'class:', tb.className?.substring(0, 30), 'pos:', rect.top, rect.left);
-          
-          // Use the first suitable textbox we find (not main chat)
-          if (rect.top > 0 && rect.left > 0) {
-            searchInput = tb;
-            log('Using textbox as search input');
-            break;
-          }
+        // Look for emoji search specific inputs
+        const placeholder = input.getAttribute('placeholder') || '';
+        if (placeholder.includes('Ara') || placeholder.includes('Search') || placeholder.includes('emoji')) {
+          searchInput = input;
+          break;
         }
       }
     }
     
     if (searchInput) {
-      log('Found search input in dialog:', searchInput.tagName, searchInput.className);
+      log('Found search input:', searchInput.placeholder || searchInput.className);
       
-      // Focus and type the search term (emoji NAME, not emoji character)
+      // Focus and clear
       searchInput.focus();
-      await sleep(100);
+      await sleep(50);
+      searchInput.value = '';
       
-      // Clear any existing content first
-      if (searchInput.tagName === 'DIV' || searchInput.contentEditable === 'true') {
-        searchInput.innerHTML = '';
-        searchInput.textContent = '';
-      } else if (searchInput.tagName === 'INPUT') {
-        searchInput.value = '';
-      }
-      
-      // Type the search term using multiple methods
-      document.execCommand('insertText', false, searchTerm);
-      searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: searchTerm, inputType: 'insertText' }));
+      // Type the search term
+      searchInput.value = searchTerm;
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
       searchInput.dispatchEvent(new Event('change', { bubbles: true }));
       
-      // Wait for search results to appear
-      await sleep(1000);
+      log('Typed search term:', searchTerm);
       
-      // Try keyboard navigation - Tab to move to results, Enter to select
-      log('Trying keyboard navigation...');
+      // Wait for search results
+      await sleep(800);
       
-      // Press Tab to move focus to results
-      searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', keyCode: 9, bubbles: true }));
-      await sleep(100);
-      
-      // Press Enter to select
-      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
-      await sleep(100);
-      
-      // Also try ArrowDown + Enter approach
-      searchInput.focus();
-      searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', keyCode: 40, bubbles: true }));
-      await sleep(100);
-      document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
-      
-      await sleep(200);
-      
-      // Check if picker is still open - if not, we succeeded
-      const pickerStillOpen = document.querySelectorAll('img.emojik').length > 10;
-      if (!pickerStillOpen) {
-        log('Picker likely closed - reaction probably sent!');
+      // Now try to find and click the emoji from search results
+      const found = await findAndClickEmoji(emoji);
+      if (found) {
         return true;
       }
       
-      // Last resort: try to find and click the first emoji result that's NOT in the search box
-      log('Keyboard navigation may have failed, trying direct click...');
-      
-      // Find emoji images - click first search result
-      const emojisInPicker = document.querySelectorAll('img.emojik, img.emoji');
-      log('Found', emojisInPicker.length, 'emojis for clicking');
-      
-      for (const img of emojisInPicker) {
-        // Skip if in search input area
-        if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
-          continue;
-        }
-        // Skip emojis that are part of the reaction buttons we modified
-        if (img.closest('[data-balcanize-intercepted]')) {
-          continue;
-        }
-        
-        log('Clicking emoji in picker:', img.alt || 'no-alt');
-        img.scrollIntoView({ block: 'center' });
-        await sleep(50);
-        
-        // Try clicking the grid cell or button parent
-        const clickable = img.closest('[role="gridcell"]') || 
-                         img.closest('[role="button"]') || 
-                         img.closest('button') ||
-                         img.parentElement;
-        if (clickable) {
-          log('Clicking wrapper:', clickable.tagName, clickable.className);
-          simulateClick(clickable);
-        }
-        simulateClick(img);
-        return true;
+      // If exact emoji not found, click the first result
+      log('Clicking first search result...');
+      const firstResult = document.querySelector('span.emojik[role="button"]');
+      if (firstResult && !firstResult.closest('[data-balcanize-intercepted]')) {
+        return await clickEmojiElement(firstResult);
       }
-      
     } else {
       log('No search input found');
     }
