@@ -1,0 +1,14 @@
+# Package files
+*.zip
+
+# Test/debug files
+emoji_picker_div.html
+*.html.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
