@@ -15,6 +15,91 @@
   
   // User's custom emojis
   let customEmojis = [...DEFAULT_EMOJIS];
+
+  // Emoji to search name mapping (for WhatsApp's text-based emoji search)
+  const EMOJI_NAMES = {
+    '😀': 'grinning', '😃': 'smiley', '😄': 'smile', '😁': 'grin', '😆': 'laughing',
+    '😅': 'sweat smile', '🤣': 'rofl', '😂': 'joy', '🙂': 'slightly smiling',
+    '🙃': 'upside down', '🫠': 'melting', '😉': 'wink', '😊': 'blush',
+    '😇': 'innocent', '🥰': 'smiling hearts', '😍': 'heart eyes', '🤩': 'star struck',
+    '😘': 'kissing heart', '😗': 'kissing', '☺️': 'relaxed', '😚': 'kissing closed',
+    '😙': 'kissing smiling', '🥲': 'smiling tear', '😋': 'yum', '😛': 'stuck out tongue',
+    '😜': 'stuck out tongue wink', '🤪': 'zany', '😝': 'stuck out tongue closed',
+    '🤑': 'money mouth', '🤗': 'hugs', '🤭': 'hand over mouth', '🫢': 'face with open eyes',
+    '🫣': 'peeking', '🤫': 'shushing', '🤔': 'thinking', '🫡': 'saluting',
+    '🤐': 'zipper mouth', '🤨': 'raised eyebrow', '😐': 'neutral', '😑': 'expressionless',
+    '😶': 'no mouth', '🫥': 'dotted line', '😏': 'smirk', '😒': 'unamused',
+    '🙄': 'rolling eyes', '😬': 'grimacing', '😮‍💨': 'exhaling', '🤥': 'lying',
+    '🫨': 'shaking', '😌': 'relieved', '😔': 'pensive', '😪': 'sleepy',
+    '🤤': 'drooling', '😴': 'sleeping', '😷': 'mask', '🤒': 'thermometer',
+    '🤕': 'bandage head', '🤢': 'nauseated', '🤮': 'vomiting', '🤧': 'sneezing',
+    '🥵': 'hot', '🥶': 'cold', '🥴': 'woozy', '😵': 'dizzy', '😵‍💫': 'face spiral',
+    '🤯': 'exploding head', '🤠': 'cowboy', '🥳': 'partying', '🥸': 'disguised',
+    '😎': 'sunglasses', '🤓': 'nerd', '🧐': 'monocle', '😕': 'confused',
+    '🫤': 'diagonal mouth', '😟': 'worried', '🙁': 'slightly frowning', '☹️': 'frowning',
+    '😮': 'open mouth', '😯': 'hushed', '😲': 'astonished', '😳': 'flushed',
+    '🥺': 'pleading', '🥹': 'holding back tears', '😦': 'frowning open mouth',
+    '😧': 'anguished', '😨': 'fearful', '😰': 'anxious sweat', '😥': 'sad relieved',
+    '😢': 'cry', '😭': 'sob', '😱': 'scream', '😖': 'confounded', '😣': 'persevere',
+    '😞': 'disappointed', '😓': 'downcast sweat', '😩': 'weary', '😫': 'tired',
+    '🥱': 'yawning', '😤': 'triumph', '😡': 'rage', '😠': 'angry', '🤬': 'cursing',
+    '😈': 'smiling imp', '👿': 'imp', '💀': 'skull', '☠️': 'skull crossbones',
+    '💩': 'poop', '🤡': 'clown', '👹': 'ogre', '👺': 'goblin', '👻': 'ghost',
+    '👽': 'alien', '👾': 'space invader', '🤖': 'robot', '😺': 'smiley cat',
+    '😸': 'smile cat', '😹': 'joy cat', '😻': 'heart eyes cat', '😼': 'smirk cat',
+    '😽': 'kissing cat', '🙀': 'weary cat', '😿': 'crying cat', '😾': 'pouting cat',
+    '🙈': 'see no evil', '🙉': 'hear no evil', '🙊': 'speak no evil',
+    '💋': 'kiss mark', '💌': 'love letter', '💘': 'cupid', '💝': 'gift heart',
+    '💖': 'sparkling heart', '💗': 'heartbeat', '💓': 'beating heart', '💞': 'revolving hearts',
+    '💕': 'two hearts', '💟': 'heart decoration', '❣️': 'heart exclamation', '💔': 'broken heart',
+    '❤️‍🔥': 'heart fire', '❤️‍🩹': 'mending heart', '❤️': 'red heart', '🩷': 'pink heart',
+    '🧡': 'orange heart', '💛': 'yellow heart', '💚': 'green heart', '💙': 'blue heart',
+    '🩵': 'light blue heart', '💜': 'purple heart', '🖤': 'black heart', '🩶': 'grey heart',
+    '🤍': 'white heart', '🤎': 'brown heart', '💯': 'hundred', '💢': 'anger',
+    '💥': 'boom', '💫': 'dizzy star', '💦': 'sweat droplets', '💨': 'dash',
+    '🕳️': 'hole', '💣': 'bomb', '💬': 'speech balloon', '👁️‍🗨️': 'eye speech',
+    '🗨️': 'left speech', '🗯️': 'right anger', '💭': 'thought balloon', '💤': 'zzz',
+    '👋': 'wave', '🤚': 'raised back hand', '🖐️': 'hand splayed', '✋': 'raised hand',
+    '🖖': 'vulcan', '🫱': 'rightwards hand', '🫲': 'leftwards hand', '🫳': 'palm down',
+    '🫴': 'palm up', '🫷': 'leftwards pushing', '🫸': 'rightwards pushing',
+    '👌': 'ok hand', '🤌': 'pinched fingers', '🤏': 'pinching hand', '✌️': 'victory',
+    '🤞': 'crossed fingers', '🫰': 'hand with index middle crossed', '🤟': 'love you',
+    '🤘': 'rock on', '🤙': 'call me', '👈': 'point left', '👉': 'point right',
+    '👆': 'point up', '🖕': 'middle finger', '👇': 'point down', '☝️': 'index up',
+    '🫵': 'index pointing at', '👍': 'thumbs up', '👎': 'thumbs down', '✊': 'fist',
+    '👊': 'punch', '🤛': 'left fist', '🤜': 'right fist', '👏': 'clap', '🙌': 'raised hands',
+    '🫶': 'heart hands', '👐': 'open hands', '🤲': 'palms up', '🤝': 'handshake',
+    '🙏': 'pray', '✍️': 'writing', '💅': 'nail polish', '🤳': 'selfie',
+    '💪': 'muscle', '🦾': 'mechanical arm', '🦿': 'mechanical leg', '🦵': 'leg',
+    '🦶': 'foot', '👂': 'ear', '🦻': 'ear hearing aid', '👃': 'nose', '🧠': 'brain',
+    '🫀': 'anatomical heart', '🫁': 'lungs', '🦷': 'tooth', '🦴': 'bone',
+    '👀': 'eyes', '👁️': 'eye', '👅': 'tongue', '👄': 'lips', '🫦': 'biting lip',
+    '🔥': 'fire', '⭐': 'star', '🌟': 'glowing star', '✨': 'sparkles',
+    '🎉': 'party', '🎊': 'confetti', '🎁': 'gift', '🎄': 'christmas tree',
+    '🎂': 'birthday', '🍕': 'pizza', '🍔': 'burger', '🍟': 'fries', '🌮': 'taco',
+    '🍦': 'ice cream', '🍩': 'donut', '🍪': 'cookie', '☕': 'coffee', '🍺': 'beer',
+    '🍷': 'wine', '🍾': 'champagne', '🥂': 'clinking glasses', '🎶': 'musical notes',
+    '🎵': 'musical note', '🎤': 'microphone', '🎧': 'headphones', '🎸': 'guitar',
+    '⚽': 'soccer', '🏀': 'basketball', '🏈': 'football', '⚾': 'baseball',
+    '🎾': 'tennis', '🏐': 'volleyball', '🎱': 'pool', '🏓': 'ping pong',
+    '🚗': 'car', '✈️': 'airplane', '🚀': 'rocket', '🌈': 'rainbow', '☀️': 'sun',
+    '🌙': 'moon', '⛅': 'partly sunny', '🌧️': 'rain cloud', '❄️': 'snowflake',
+    '💐': 'bouquet', '🌹': 'rose', '🌻': 'sunflower', '🌸': 'cherry blossom',
+    '🐶': 'dog', '🐱': 'cat', '🐭': 'mouse', '🐹': 'hamster', '🐰': 'rabbit',
+    '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🐨': 'koala', '🦁': 'lion',
+    '🐮': 'cow', '🐷': 'pig', '🐸': 'frog', '🐵': 'monkey', '🐔': 'chicken',
+    '🐧': 'penguin', '🐦': 'bird', '🦆': 'duck', '🦅': 'eagle', '🦉': 'owl',
+    '🦇': 'bat', '🐺': 'wolf', '🐗': 'boar', '🐴': 'horse', '🦄': 'unicorn',
+    '🐝': 'bee', '🐛': 'bug', '🦋': 'butterfly', '🐌': 'snail', '🐞': 'ladybug',
+    '🐜': 'ant', '🦟': 'mosquito', '🦗': 'cricket', '🕷️': 'spider', '🦂': 'scorpion',
+    '🐢': 'turtle', '🐍': 'snake', '🦎': 'lizard', '🦖': 'dinosaur', '🐙': 'octopus',
+    '🦑': 'squid', '🦀': 'crab', '🦐': 'shrimp', '🦞': 'lobster', '🐡': 'blowfish',
+    '🐠': 'tropical fish', '🐟': 'fish', '🐬': 'dolphin', '🐳': 'whale', '🦈': 'shark',
+    '🐊': 'crocodile', '🐆': 'leopard', '🐅': 'tiger', '🐃': 'water buffalo',
+    '🐂': 'ox', '🐄': 'cow face', '🐎': 'racehorse', '🐖': 'pig face', '🐏': 'ram',
+    '🐐': 'goat', '🐑': 'sheep', '🐒': 'monkey face', '🐓': 'rooster', '🐕': 'dog2',
+    '🐈': 'cat2', '🐿️': 'chipmunk', '🦔': 'hedgehog', '🐉': 'dragon'
+  };
   
   // Processing flag
   let isProcessing = false;
@@ -342,6 +427,10 @@
   async function searchAndClickEmoji(emoji) {
     log('Trying search method for:', emoji);
     
+    // Get the emoji name for searching (WhatsApp uses text search, not emoji search)
+    const searchTerm = EMOJI_NAMES[emoji] || emoji;
+    log('Search term:', searchTerm, 'for emoji:', emoji);
+    
     // IMPORTANT: Find search input INSIDE the emoji picker dialog, not the main chat search
     const dialog = document.querySelector('[role="dialog"]');
     if (!dialog) {
@@ -350,26 +439,50 @@
     }
     
     log('Found dialog, looking for search input inside...');
+    log('Dialog HTML snippet:', dialog.innerHTML.substring(0, 500));
     
-    // Find search input inside the dialog
-    const searchInput = dialog.querySelector('div[contenteditable="true"][data-tab]') ||
-                        dialog.querySelector('div[contenteditable="true"]') ||
-                        dialog.querySelector('input[placeholder*="Search"], input[placeholder*="Ara"], input[type="text"]');
+    // Find search input inside the dialog - try multiple selectors
+    let searchInput = dialog.querySelector('div[contenteditable="true"][role="textbox"]') ||
+                      dialog.querySelector('div[contenteditable="true"][data-tab]') ||
+                      dialog.querySelector('div[contenteditable="true"]') ||
+                      dialog.querySelector('[role="textbox"]') ||
+                      dialog.querySelector('input[placeholder*="Search"]') ||
+                      dialog.querySelector('input[placeholder*="search"]') ||
+                      dialog.querySelector('input[placeholder*="Ara"]') ||
+                      dialog.querySelector('input[type="text"]') ||
+                      dialog.querySelector('input');
+    
+    // Also look for p elements that act as textboxes
+    if (!searchInput) {
+      const textboxes = dialog.querySelectorAll('[role="textbox"], [contenteditable="true"]');
+      log('Found textboxes in dialog:', textboxes.length);
+      for (const tb of textboxes) {
+        log('Textbox:', tb.tagName, tb.className, 'role:', tb.getAttribute('role'));
+      }
+      if (textboxes.length > 0) {
+        searchInput = textboxes[0];
+      }
+    }
     
     if (searchInput) {
-      log('Found search input in dialog:', searchInput.tagName);
+      log('Found search input in dialog:', searchInput.tagName, searchInput.className);
       
-      // Focus and type the emoji
+      // Focus and type the search term (emoji NAME, not emoji character)
       searchInput.focus();
+      await sleep(100);
       
       // Clear any existing content first
-      if (searchInput.contentEditable === 'true') {
+      if (searchInput.tagName === 'DIV' || searchInput.contentEditable === 'true') {
         searchInput.innerHTML = '';
+        searchInput.textContent = '';
+      } else if (searchInput.tagName === 'INPUT') {
+        searchInput.value = '';
       }
       
-      // Type the emoji using execCommand for better compatibility
-      document.execCommand('insertText', false, emoji);
-      searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: emoji }));
+      // Type the search term using multiple methods
+      document.execCommand('insertText', false, searchTerm);
+      searchInput.dispatchEvent(new InputEvent('input', { bubbles: true, data: searchTerm, inputType: 'insertText' }));
+      searchInput.dispatchEvent(new Event('change', { bubbles: true }));
       
       // Wait for search results to appear
       await sleep(1000);
@@ -403,19 +516,42 @@
       // Last resort: try to find and click the first emoji result that's NOT in the search box
       log('Keyboard navigation may have failed, trying direct click...');
       
-      const emojisInDialog = dialog.querySelectorAll('img.emoji, img[alt]');
+      // Get current dialog reference (might have changed)
+      const currentDialog = document.querySelector('[role="dialog"]');
+      if (!currentDialog) {
+        log('Dialog closed after search');
+        return true; // Might have succeeded
+      }
+      
+      // Find emoji images in dialog - click first search result
+      const emojisInDialog = currentDialog.querySelectorAll('img.emojik, img.emoji, img[alt]');
+      log('Found', emojisInDialog.length, 'emojis in dialog for clicking');
+      
       for (const img of emojisInDialog) {
         // Skip if in search input area
         if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
           continue;
         }
-        if (img.alt === emoji) {
-          log('Found emoji in dialog:', img.alt);
-          img.scrollIntoView({ block: 'center' });
-          await sleep(50);
-          simulateClick(img);
-          return true;
+        // Skip empty alt
+        if (!img.alt || img.alt.trim() === '') {
+          continue;
         }
+        
+        log('Clicking first result emoji:', img.alt);
+        img.scrollIntoView({ block: 'center' });
+        await sleep(50);
+        
+        // Try clicking the grid cell or button parent
+        const clickable = img.closest('[role="gridcell"]') || 
+                         img.closest('[role="button"]') || 
+                         img.closest('button') ||
+                         img.parentElement;
+        if (clickable) {
+          log('Clicking wrapper:', clickable.tagName, clickable.className);
+          simulateClick(clickable);
+        }
+        simulateClick(img);
+        return true;
       }
       
     } else {
