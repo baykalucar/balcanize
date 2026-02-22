@@ -18,6 +18,9 @@
   
   // Processing flag
   let isProcessing = false;
+  
+  // Flag to prevent recursive click interception
+  let isSendingReaction = false;
 
   /**
    * Load custom emojis from Chrome storage
@@ -71,6 +74,12 @@
       button.setAttribute('data-balcanize-intercepted', 'true');
       
       button.addEventListener('click', async (e) => {
+        // Skip if we're already sending a reaction (prevent recursion)
+        if (isSendingReaction) {
+          log('Skipping intercept - already sending reaction');
+          return;
+        }
+        
         const targetEmoji = button.getAttribute('data-balcanize-emoji');
         if (targetEmoji) {
           e.stopPropagation();
@@ -90,38 +99,47 @@
   async function sendCustomReaction(emoji) {
     log('Sending custom reaction:', emoji);
     
-    // Find the "+" (more reactions) button
-    let moreButton = document.querySelector('div[role="button"][aria-label="Diğer ifadeler"]') ||
-                     document.querySelector('div[role="button"][aria-label="More reactions"]') ||
-                     document.querySelector('div[role="button"][aria-label="All reactions"]');
+    // Set flag to prevent recursive interception
+    isSendingReaction = true;
     
-    if (!moreButton) {
-      log('More button not found, trying to find by content...');
-      // Try to find by the plus icon
-      const allButtons = document.querySelectorAll('div[role="button"]');
-      for (const btn of allButtons) {
-        if (btn.textContent.includes('+') || btn.textContent.includes('plus')) {
-          moreButton = btn;
-          break;
+    try {
+      // Find the "+" (more reactions) button
+      let moreButton = document.querySelector('div[role="button"][aria-label="Diğer ifadeler"]') ||
+                       document.querySelector('div[role="button"][aria-label="More reactions"]') ||
+                       document.querySelector('div[role="button"][aria-label="All reactions"]');
+      
+      if (!moreButton) {
+        log('More button not found, trying to find by content...');
+        // Try to find by the plus icon
+        const allButtons = document.querySelectorAll('div[role="button"]');
+        for (const btn of allButtons) {
+          if (btn.textContent.includes('+') || btn.textContent.includes('plus')) {
+            moreButton = btn;
+            break;
+          }
         }
       }
-    }
-    
-    if (moreButton) {
-      log('Found more button, clicking...');
-      moreButton.click();
       
-      // Wait for emoji picker to open
-      await sleep(300);
-      
-      // Find the emoji in the picker
-      const found = await findAndClickEmoji(emoji);
-      if (!found) {
-        log('Could not find emoji in picker, searching...');
-        await searchAndClickEmoji(emoji);
+      if (moreButton) {
+        log('Found more button, clicking...');
+        moreButton.click();
+        
+        // Wait for emoji picker to open
+        await sleep(300);
+        
+        // Find the emoji in the picker
+        const found = await findAndClickEmoji(emoji);
+        if (!found) {
+          log('Could not find emoji in picker, searching...');
+          await searchAndClickEmoji(emoji);
+        }
+      } else {
+        warn('Could not find more reactions button');
       }
-    } else {
-      warn('Could not find more reactions button');
+    } finally {
+      // Reset flag
+      isSendingReaction = false;
+      log('Reaction sending complete');
     }
   }
 
