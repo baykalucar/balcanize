@@ -188,12 +188,34 @@
     const allSpans = document.querySelectorAll('span[data-testid], span');
     for (const span of allSpans) {
       if (span.textContent === emoji || span.textContent.trim() === emoji) {
-        const button = span.closest('div[role="button"]') || span.closest('button') || span.parentElement;
-        if (button) {
-          log('Found emoji span:', emoji);
+        // Log the parent hierarchy for debugging
+        let el = span;
+        let hierarchy = [];
+        for (let i = 0; i < 6 && el; i++) {
+          hierarchy.push(el.tagName + (el.role ? `[role=${el.role}]` : '') + (el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''));
+          el = el.parentElement;
+        }
+        log('Element hierarchy:', hierarchy.join(' -> '));
+        
+        // Try to find the correct clickable element
+        // WhatsApp emoji picker uses different structures
+        const button = span.closest('[role="gridcell"]') || 
+                       span.closest('[role="listitem"]') || 
+                       span.closest('[role="option"]') ||
+                       span.closest('div[role="button"]') || 
+                       span.closest('button') ||
+                       span.closest('[data-testid]');
+        
+        if (button && button.tagName !== 'P') {
+          log('Found emoji span, clicking wrapper:', button.tagName);
           simulateClick(button);
           return true;
         }
+        
+        // If no good wrapper found, try clicking the span directly
+        log('No good wrapper, clicking span directly');
+        simulateClick(span);
+        return true;
       }
     }
     
