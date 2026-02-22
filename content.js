@@ -431,36 +431,102 @@
     const searchTerm = EMOJI_NAMES[emoji] || emoji;
     log('Search term:', searchTerm, 'for emoji:', emoji);
     
-    // IMPORTANT: Find search input INSIDE the emoji picker dialog, not the main chat search
-    const dialog = document.querySelector('[role="dialog"]');
-    if (!dialog) {
-      log('No dialog found');
-      return false;
+    // Wait a bit more for picker to fully render
+    await sleep(500);
+    
+    // Find the emoji picker container - try multiple selectors
+    // WhatsApp doesn't always use role="dialog" for the picker
+    let pickerContainer = document.querySelector('[role="dialog"]') ||
+                          document.querySelector('[data-testid="emoji-picker"]') ||
+                          document.querySelector('[aria-label*="Emoji"]') ||
+                          document.querySelector('[aria-label*="emoji"]') ||
+                          document.querySelector('.emoji-panel') ||
+                          document.querySelector('[data-tab="emoji"]');
+    
+    // If still not found, look for a container that has many emoji images
+    if (!pickerContainer) {
+      log('No standard picker container found, searching by emoji content...');
+      const allContainers = document.querySelectorAll('div');
+      for (const container of allContainers) {
+        const emojiCount = container.querySelectorAll('img.emojik, img.emoji').length;
+        // Look for a container with many emojis that's not the reaction bar
+        if (emojiCount > 20 && !container.closest('[data-balcanize-intercepted]')) {
+          // Make sure it's a reasonably sized panel
+          const rect = container.getBoundingClientRect();
+          if (rect.width > 200 && rect.height > 200) {
+            pickerContainer = container;
+            log('Found picker container by emoji count:', emojiCount);
+            break;
+          }
+        }
+      }
     }
     
-    log('Found dialog, looking for search input inside...');
-    log('Dialog HTML snippet:', dialog.innerHTML.substring(0, 500));
-    
-    // Find search input inside the dialog - try multiple selectors
-    let searchInput = dialog.querySelector('div[contenteditable="true"][role="textbox"]') ||
-                      dialog.querySelector('div[contenteditable="true"][data-tab]') ||
-                      dialog.querySelector('div[contenteditable="true"]') ||
-                      dialog.querySelector('[role="textbox"]') ||
-                      dialog.querySelector('input[placeholder*="Search"]') ||
-                      dialog.querySelector('input[placeholder*="search"]') ||
-                      dialog.querySelector('input[placeholder*="Ara"]') ||
-                      dialog.querySelector('input[type="text"]') ||
-                      dialog.querySelector('input');
-    
-    // Also look for p elements that act as textboxes
-    if (!searchInput) {
-      const textboxes = dialog.querySelectorAll('[role="textbox"], [contenteditable="true"]');
-      log('Found textboxes in dialog:', textboxes.length);
-      for (const tb of textboxes) {
-        log('Textbox:', tb.tagName, tb.className, 'role:', tb.getAttribute('role'));
+    if (!pickerContainer) {
+      log('No picker container found, listing all elements with emojis...');
+      const emojis = document.querySelectorAll('img.emojik');
+      if (emojis.length > 0) {
+        // Use the parent of the first emoji as container
+        let parent = emojis[0].parentElement;
+        while (parent && parent !== document.body) {
+          const rect = parent.getBoundingClientRect();
+          if (rect.width > 200 && rect.height > 200) {
+            pickerContainer = parent;
+            log('Using emoji parent as container:', parent.tagName, parent.className);
+            break;
+          }
+          parent = parent.parentElement;
+        }
       }
-      if (textboxes.length > 0) {
-        searchInput = textboxes[0];
+    }
+    
+    if (!pickerContainer) {
+      log('Still no picker container found');
+      // Fall back to searching entire document
+      pickerContainer = document.body;
+    }
+    
+    log('Found picker container:', pickerContainer.tagName, pickerContainer.className?.substring(0, 50));
+    
+    // Find search input inside the picker - try multiple selectors
+    let searchInput = pickerContainer.querySelector('div[contenteditable="true"][role="textbox"]') ||
+                      pickerContainer.querySelector('div[contenteditable="true"][data-tab]') ||
+                      pickerContainer.querySelector('div[contenteditable="true"]') ||
+                      pickerContainer.querySelector('[role="textbox"]') ||
+                      pickerContainer.querySelector('input[placeholder*="Search"]') ||
+                      pickerContainer.querySelector('input[placeholder*="search"]') ||
+                      pickerContainer.querySelector('input[placeholder*="Ara"]') ||
+                      pickerContainer.querySelector('input[type="text"]') ||
+                      pickerContainer.querySelector('input');
+    
+    // Also try finding in the whole document if not in picker
+    if (!searchInput) {
+      log('No search input in picker, trying document-wide search...');
+      // Find all textboxes and filter to one in/near emoji area
+      const allTextboxes = document.querySelectorAll('[role="textbox"], [contenteditable="true"], input[type="text"]');
+      log('Found', allTextboxes.length, 'textboxes in document');
+      
+      for (const tb of allTextboxes) {
+        // Skip the main chat input
+        if (tb.closest('[data-testid="conversation-compose-box"]') || 
+            tb.closest('.copyable-text') ||
+            tb.getAttribute('data-tab') === '10') { // Main chat input often has data-tab="10"
+          continue;
+        }
+        
+        // Check if this textbox is near emoji content
+        const parent = tb.closest('div');
+        if (parent) {
+          const rect = tb.getBoundingClientRect();
+          log('Textbox:', tb.tagName, 'class:', tb.className?.substring(0, 30), 'pos:', rect.top, rect.left);
+          
+          // Use the first suitable textbox we find (not main chat)
+          if (rect.top > 0 && rect.left > 0) {
+            searchInput = tb;
+            log('Using textbox as search input');
+            break;
+          }
+        }
       }
     }
     
@@ -507,37 +573,30 @@
       await sleep(200);
       
       // Check if picker is still open - if not, we succeeded
-      const pickerStillOpen = document.querySelector('[role="dialog"]');
+      const pickerStillOpen = document.querySelectorAll('img.emojik').length > 10;
       if (!pickerStillOpen) {
-        log('Picker closed - reaction probably sent!');
+        log('Picker likely closed - reaction probably sent!');
         return true;
       }
       
       // Last resort: try to find and click the first emoji result that's NOT in the search box
       log('Keyboard navigation may have failed, trying direct click...');
       
-      // Get current dialog reference (might have changed)
-      const currentDialog = document.querySelector('[role="dialog"]');
-      if (!currentDialog) {
-        log('Dialog closed after search');
-        return true; // Might have succeeded
-      }
+      // Find emoji images - click first search result
+      const emojisInPicker = document.querySelectorAll('img.emojik, img.emoji');
+      log('Found', emojisInPicker.length, 'emojis for clicking');
       
-      // Find emoji images in dialog - click first search result
-      const emojisInDialog = currentDialog.querySelectorAll('img.emojik, img.emoji, img[alt]');
-      log('Found', emojisInDialog.length, 'emojis in dialog for clicking');
-      
-      for (const img of emojisInDialog) {
+      for (const img of emojisInPicker) {
         // Skip if in search input area
         if (img.closest('[role="textbox"]') || img.closest('[contenteditable]')) {
           continue;
         }
-        // Skip empty alt
-        if (!img.alt || img.alt.trim() === '') {
+        // Skip emojis that are part of the reaction buttons we modified
+        if (img.closest('[data-balcanize-intercepted]')) {
           continue;
         }
         
-        log('Clicking first result emoji:', img.alt);
+        log('Clicking emoji in picker:', img.alt || 'no-alt');
         img.scrollIntoView({ block: 'center' });
         await sleep(50);
         
@@ -555,7 +614,7 @@
       }
       
     } else {
-      log('No search input found in dialog');
+      log('No search input found');
     }
     
     return false;
