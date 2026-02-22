@@ -74,19 +74,19 @@
       button.setAttribute('data-balcanize-intercepted', 'true');
       
       button.addEventListener('click', (e) => {
-        // IMMEDIATELY stop all propagation - before any async work
-        e.stopImmediatePropagation();
-        e.stopPropagation();
-        e.preventDefault();
-        
-        // Skip if we're already sending a reaction (prevent recursion)
+        // Check FIRST if we're already sending - if so, let the click through completely
         if (isSendingReaction) {
-          log('Skipping intercept - already sending reaction');
-          return;
+          log('Skipping intercept - already sending reaction, letting click through');
+          return; // Don't block anything, let WhatsApp handle it
         }
         
         const targetEmoji = button.getAttribute('data-balcanize-emoji');
         if (targetEmoji) {
+          // Only NOW block the event, after we know we want to intercept
+          e.stopImmediatePropagation();
+          e.stopPropagation();
+          e.preventDefault();
+          
           log('Intercepted click, sending emoji:', targetEmoji);
           // Fire and forget - don't await
           sendCustomReaction(targetEmoji);
