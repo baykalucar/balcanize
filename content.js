@@ -304,113 +304,64 @@
     log('Searching for emoji in picker:', emoji);
     
     // WhatsApp uses img.emojik for emojis in picker too
-    const allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji, img[alt]');
+    let allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji');
     log('Found', allEmojiImgs.length, 'emoji images in picker');
     
-    for (const img of allEmojiImgs) {
-      // Check alt attribute - WhatsApp stores emoji character in alt
-      if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
-        log('Found emoji image with alt:', img.alt);
-        
-        // FIRST scroll the emoji into view
-        img.scrollIntoView({ block: 'center', behavior: 'instant' });
-        await sleep(100);
-        
-        // NOW get the visual center of the image (after scroll)
-        const rect = img.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        
-        log('Emoji position after scroll:', centerX, centerY);
-        
-        // Check if position is valid (on screen)
-        if (centerY < 0 || centerY > window.innerHeight || centerX < 0 || centerX > window.innerWidth) {
-          log('Emoji still off-screen, trying direct click');
-          simulateClick(img);
-          return true;
-        }
-        
-        // Find what element is actually at this position
-        const elementAtPoint = document.elementFromPoint(centerX, centerY);
-        log('Element at point:', elementAtPoint?.tagName, elementAtPoint?.className);
-        
-        // Try clicking the element at point
-        if (elementAtPoint) {
-          // Try focus + Enter key approach
-          elementAtPoint.focus();
-          elementAtPoint.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-          elementAtPoint.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
-          
-          await sleep(50);
-          
-          // Also try simulated click
-          simulateClick(elementAtPoint);
-          
-          // Try clicking via coordinates using elementFromPoint again
-          await sleep(50);
-          const newRect = elementAtPoint.getBoundingClientRect();
-          const newX = newRect.left + newRect.width / 2;
-          const newY = newRect.top + newRect.height / 2;
-          
-          const finalTarget = document.elementFromPoint(newX, newY);
-          if (finalTarget && finalTarget !== elementAtPoint) {
-            log('Clicking final target:', finalTarget.tagName);
-            simulateClick(finalTarget);
-          }
-        }
-        
-        // Also try img directly
-        simulateClick(img);
-        
-        return true;
-      }
+    // Log some details about the images
+    const sampleImgs = Array.from(allEmojiImgs).slice(0, 15);
+    for (const img of sampleImgs) {
+      log('Emoji img:', 'alt=' + img.alt, 'src=' + img.src?.substring(0, 50), 'class=' + img.className);
     }
     
-    // Also try looking for span elements with the emoji
-    const allSpans = document.querySelectorAll('span[data-testid], span');
-    for (const span of allSpans) {
-      // SKIP our own overlay elements
-      if (span.classList.contains('balcanize-overlay')) {
-        continue;
-      }
-      // SKIP elements inside our modified buttons
-      if (span.closest('[data-balcanize-intercepted]')) {
-        continue;
-      }
-      // SKIP elements inside textbox/search input
-      if (span.closest('[role="textbox"]') || span.closest('[contenteditable="true"]')) {
+    // First pass: check currently visible emojis
+    for (const img of allEmojiImgs) {
+      // Skip emojis in our modified buttons
+      if (img.closest('[data-balcanize-intercepted]')) {
         continue;
       }
       
-      if (span.textContent === emoji || span.textContent.trim() === emoji) {
-        // Log the parent hierarchy for debugging
-        let el = span;
-        let hierarchy = [];
-        for (let i = 0; i < 6 && el; i++) {
-          hierarchy.push(el.tagName + (el.role ? `[role=${el.role}]` : '') + (el.getAttribute('role') ? `[role=${el.getAttribute('role')}]` : ''));
-          el = el.parentElement;
+      if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
+        log('Found emoji image with alt:', img.alt);
+        return await clickEmojiImage(img);
+      }
+    }
+    
+    // Second pass: scroll through the picker to find the emoji
+    log('Emoji not found in visible area, scrolling to search...');
+    const scrollContainer = findScrollableEmojiContainer();
+    
+    if (scrollContainer) {
+      log('Found scrollable container:', scrollContainer.tagName, scrollContainer.className?.substring(0, 30));
+      
+      // Scroll through the container looking for the emoji
+      const scrollHeight = scrollContainer.scrollHeight;
+      const clientHeight = scrollContainer.clientHeight;
+      let scrollTop = 0;
+      const scrollStep = clientHeight / 2; // Scroll half a page at a time
+      
+      while (scrollTop < scrollHeight) {
+        scrollContainer.scrollTop = scrollTop;
+        await sleep(100); // Wait for lazy loading
+        
+        // Check for emoji after each scroll
+        allEmojiImgs = document.querySelectorAll('img.emojik, img.emoji');
+        for (const img of allEmojiImgs) {
+          if (img.closest('[data-balcanize-intercepted]')) {
+            continue;
+          }
+          if (img.alt === emoji) {
+            log('Found emoji after scrolling!', img.alt);
+            return await clickEmojiImage(img);
+          }
         }
-        log('Element hierarchy:', hierarchy.join(' -> '));
         
-        // Try to find the correct clickable element
-        // WhatsApp emoji picker uses different structures
-        const button = span.closest('[role="gridcell"]') || 
-                       span.closest('[role="listitem"]') || 
-                       span.closest('[role="option"]') ||
-                       span.closest('div[role="button"]') || 
-                       span.closest('button') ||
-                       span.closest('[data-testid]');
+        scrollTop += scrollStep;
         
-        if (button && button.tagName !== 'P' && !button.hasAttribute('data-balcanize-intercepted')) {
-          log('Found emoji span, clicking wrapper:', button.tagName);
-          simulateClick(button);
-          return true;
+        // Safety limit to avoid infinite loop
+        if (scrollTop > 5000) {
+          log('Scroll limit reached');
+          break;
         }
-        
-        // If no good wrapper found, try clicking the span directly
-        log('No good wrapper, clicking span directly');
-        simulateClick(span);
-        return true;
       }
     }
     
@@ -419,6 +370,83 @@
     log('Sample alts found:', sampleAlts.join(', '));
     
     return false;
+  }
+  
+  /**
+   * Find the scrollable container for emojis
+   */
+  function findScrollableEmojiContainer() {
+    // Look for elements with overflow scroll/auto that contain emojis
+    const candidates = document.querySelectorAll('div');
+    for (const div of candidates) {
+      const style = window.getComputedStyle(div);
+      const hasOverflow = style.overflowY === 'scroll' || style.overflowY === 'auto';
+      const hasEmojis = div.querySelectorAll('img.emojik').length > 10;
+      
+      if (hasOverflow && hasEmojis) {
+        const rect = div.getBoundingClientRect();
+        // Make sure it's visible and reasonably sized
+        if (rect.width > 100 && rect.height > 100 && rect.top >= 0) {
+          return div;
+        }
+      }
+    }
+    
+    // Fallback: find container with most emojis
+    let bestContainer = null;
+    let maxEmojis = 0;
+    for (const div of candidates) {
+      const emojiCount = div.querySelectorAll('img.emojik').length;
+      if (emojiCount > maxEmojis && emojiCount > 10) {
+        const rect = div.getBoundingClientRect();
+        if (rect.width > 100 && rect.height > 100) {
+          maxEmojis = emojiCount;
+          bestContainer = div;
+        }
+      }
+    }
+    
+    return bestContainer;
+  }
+  
+  /**
+   * Click on an emoji image
+   */
+  async function clickEmojiImage(img) {
+    // Scroll into view first
+    img.scrollIntoView({ block: 'center', behavior: 'instant' });
+    await sleep(100);
+    
+    // Get position after scroll
+    const rect = img.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    log('Emoji position:', centerX, centerY);
+    
+    // Find clickable parent
+    const clickable = img.closest('[role="gridcell"]') || 
+                     img.closest('[role="button"]') || 
+                     img.closest('button') ||
+                     img.parentElement;
+    
+    if (clickable && clickable !== img) {
+      log('Clicking wrapper:', clickable.tagName);
+      simulateClick(clickable);
+    }
+    
+    // Also click the image directly
+    simulateClick(img);
+    
+    // Try clicking at coordinates
+    await sleep(50);
+    const elementAtPoint = document.elementFromPoint(centerX, centerY);
+    if (elementAtPoint && elementAtPoint !== img) {
+      log('Clicking element at point:', elementAtPoint.tagName);
+      simulateClick(elementAtPoint);
+    }
+    
+    return true;
   }
 
   /**
