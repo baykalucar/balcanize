@@ -133,6 +133,32 @@
   }
 
   /**
+   * Simulate realistic click on element
+   */
+  function simulateClick(element) {
+    log('Simulating click on:', element.tagName, element.className);
+    
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const eventOptions = {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      clientX: centerX,
+      clientY: centerY,
+      button: 0
+    };
+    
+    element.dispatchEvent(new MouseEvent('mousedown', eventOptions));
+    element.dispatchEvent(new MouseEvent('mouseup', eventOptions));
+    element.dispatchEvent(new MouseEvent('click', eventOptions));
+    
+    log('Click events dispatched');
+  }
+
+  /**
    * Find and click emoji in the open picker
    */
   async function findAndClickEmoji(emoji) {
@@ -149,11 +175,11 @@
         const button = img.closest('div[role="button"]') || img.closest('button') || img.closest('span[data-testid]') || img.parentElement;
         if (button) {
           log('Clicking button for emoji');
-          button.click();
+          simulateClick(button);
           return true;
         }
         // If no button wrapper, click the image itself
-        img.click();
+        simulateClick(img);
         return true;
       }
     }
@@ -165,7 +191,7 @@
         const button = span.closest('div[role="button"]') || span.closest('button') || span.parentElement;
         if (button) {
           log('Found emoji span:', emoji);
-          button.click();
+          simulateClick(button);
           return true;
         }
       }
@@ -219,9 +245,9 @@
           log('Found matching emoji after search:', img.alt);
           const btn = img.closest('div[role="button"]');
           if (btn) {
-            btn.click();
+            simulateClick(btn);
           } else {
-            img.click();
+            simulateClick(img);
           }
           return true;
         }
