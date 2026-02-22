@@ -48,7 +48,7 @@
 
   /**
    * Create an emoji overlay on top of the WhatsApp sprite image
-   * Uses a clickable overlay to intercept all clicks before WhatsApp sees them
+   * Replaces the button entirely to remove WhatsApp's event handlers
    */
   function createEmojiOverlay(imgElement, emoji, button) {
     // Hide the original sprite
@@ -70,44 +70,46 @@
     
     overlay.textContent = emoji;
     
-    // Create clickable overlay that covers the ENTIRE button
+    // Clone button to remove all WhatsApp event listeners
     if (!button.hasAttribute('data-balcanize-intercepted')) {
-      button.setAttribute('data-balcanize-intercepted', 'true');
-      button.style.position = 'relative';
+      const buttonParent = button.parentElement;
+      if (!buttonParent) return;
       
-      // Create invisible clickable layer on top of button
-      const clickLayer = document.createElement('div');
-      clickLayer.className = 'balcanize-click-layer';
-      clickLayer.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; background: transparent;';
-      clickLayer.setAttribute('data-balcanize-emoji', emoji);
+      // Clone the button (this removes all event listeners)
+      const newButton = button.cloneNode(true);
+      newButton.setAttribute('data-balcanize-intercepted', 'true');
+      newButton.setAttribute('data-balcanize-emoji', emoji);
       
-      // This layer captures ALL clicks
-      clickLayer.addEventListener('click', (e) => {
+      // Add our own click handler
+      newButton.addEventListener('click', (e) => {
         e.stopImmediatePropagation();
         e.stopPropagation();
         e.preventDefault();
         
         if (isSendingReaction) {
-          log('Click layer: already sending, ignoring');
+          log('Clone button: already sending, ignoring');
           return;
         }
         
-        const targetEmoji = clickLayer.getAttribute('data-balcanize-emoji');
-        log('Click layer clicked! Sending emoji:', targetEmoji);
+        const targetEmoji = newButton.getAttribute('data-balcanize-emoji');
+        log('Clone button clicked! Sending emoji:', targetEmoji);
         sendCustomReaction(targetEmoji);
+      }, true);
+      
+      // Block all pointer events too
+      ['pointerdown', 'pointerup', 'mousedown', 'mouseup'].forEach(eventType => {
+        newButton.addEventListener(eventType, (e) => {
+          if (!isSendingReaction) {
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        }, true);
       });
       
-      // Also block pointer events
-      clickLayer.addEventListener('pointerdown', (e) => {
-        if (!isSendingReaction) {
-          e.stopImmediatePropagation();
-          e.stopPropagation();
-          e.preventDefault();
-        }
-      });
-      
-      button.appendChild(clickLayer);
-      log('Created click layer for', emoji);
+      // Replace original button with clone
+      buttonParent.replaceChild(newButton, button);
+      log('Replaced button with clone for', emoji);
     }
     
     log('Created overlay for', emoji);
