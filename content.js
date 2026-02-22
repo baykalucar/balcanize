@@ -73,7 +73,8 @@
     if (!button.hasAttribute('data-balcanize-intercepted')) {
       button.setAttribute('data-balcanize-intercepted', 'true');
       
-      button.addEventListener('click', (e) => {
+      // Handler function for all event types
+      const interceptHandler = (e) => {
         // Check FIRST if we're already sending - if so, let the click through completely
         if (isSendingReaction) {
           log('Skipping intercept - already sending reaction, letting click through');
@@ -87,11 +88,22 @@
           e.stopPropagation();
           e.preventDefault();
           
-          log('Intercepted click, sending emoji:', targetEmoji);
-          // Fire and forget - don't await
-          sendCustomReaction(targetEmoji);
+          // Only trigger reaction on pointerup or click (not on pointerdown)
+          if (e.type === 'pointerup' || e.type === 'click' || e.type === 'mouseup') {
+            log('Intercepted', e.type, '- sending emoji:', targetEmoji);
+            sendCustomReaction(targetEmoji);
+          } else {
+            log('Blocked', e.type, 'event');
+          }
         }
-      }, true); // capture phase
+      };
+      
+      // Intercept ALL relevant events in capture phase
+      button.addEventListener('pointerdown', interceptHandler, true);
+      button.addEventListener('pointerup', interceptHandler, true);
+      button.addEventListener('mousedown', interceptHandler, true);
+      button.addEventListener('mouseup', interceptHandler, true);
+      button.addEventListener('click', interceptHandler, true);
     }
     
     log('Created overlay for', emoji);
