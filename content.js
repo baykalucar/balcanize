@@ -292,6 +292,10 @@
       if (span.closest('[data-balcanize-intercepted]')) {
         continue;
       }
+      // SKIP elements inside textbox/search input
+      if (span.closest('[role="textbox"]') || span.closest('[contenteditable="true"]')) {
+        continue;
+      }
       
       if (span.textContent === emoji || span.textContent.trim() === emoji) {
         // Log the parent hierarchy for debugging
@@ -359,25 +363,48 @@
       }
       
       // Wait for search results
-      await sleep(500);
+      await sleep(800);
       
-      // Try to find and click the emoji now
-      const found = await findAndClickEmoji(emoji);
-      if (found) return true;
+      // Look for emoji in search results - find images with matching alt
+      const searchResults = document.querySelectorAll('img.emoji[alt], img[alt]');
+      log('Found', searchResults.length, 'images after search');
       
-      // Try clicking any emoji button that appears
-      const emojiButtons = document.querySelectorAll('img.emojik[alt], div[role="button"] img[alt]');
-      log('Found', emojiButtons.length, 'emoji buttons after search');
-      for (const img of emojiButtons) {
+      for (const img of searchResults) {
+        // Skip images in the search input itself
+        if (img.closest('[role="textbox"]') || img.closest('[contenteditable="true"]')) {
+          continue;
+        }
+        
         if (img.alt === emoji) {
-          log('Found matching emoji after search:', img.alt);
-          const btn = img.closest('div[role="button"]');
-          if (btn) {
-            simulateClick(btn);
-          } else {
-            simulateClick(img);
-          }
+          log('Found search result with alt:', img.alt);
+          
+          // Scroll into view and click
+          img.scrollIntoView({ block: 'center', behavior: 'instant' });
+          await sleep(100);
+          
+          const rect = img.getBoundingClientRect();
+          log('Search result position:', rect.left, rect.top);
+          
+          // Try clicking the image or its parent
+          const clickable = img.closest('div[role="button"]') || img.closest('button') || img;
+          simulateClick(clickable);
           return true;
+        }
+      }
+      
+      // Also try finding by looking at visible emoji grid
+      const emojiGrid = document.querySelector('[role="grid"], [role="listbox"]');
+      if (emojiGrid) {
+        log('Found emoji grid');
+        const gridImages = emojiGrid.querySelectorAll('img[alt]');
+        for (const img of gridImages) {
+          if (img.alt === emoji) {
+            log('Found emoji in grid:', img.alt);
+            img.scrollIntoView({ block: 'center', behavior: 'instant' });
+            await sleep(100);
+            simulateClick(img);
+            return true;
+          }
         }
       }
     } else {
