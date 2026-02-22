@@ -225,37 +225,47 @@
       if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
         log('Found emoji image with alt:', img.alt);
         
-        // Log parent hierarchy for debugging
-        let el = img;
-        let hierarchy = [];
-        for (let i = 0; i < 8 && el; i++) {
-          const role = el.getAttribute && el.getAttribute('role');
-          hierarchy.push(el.tagName + (role ? `[role=${role}]` : ''));
-          el = el.parentElement;
-        }
-        log('IMG hierarchy:', hierarchy.join(' -> '));
+        // Get the visual center of the image
+        const rect = img.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
         
-        // Try clicking up the tree to find a clickable ancestor
-        let clickTarget = img;
-        let current = img.parentElement;
-        while (current && current.tagName !== 'BODY') {
-          const role = current.getAttribute('role');
-          if (role === 'button' || role === 'gridcell' || role === 'listitem' || role === 'option') {
-            clickTarget = current;
-            break;
+        log('Emoji position:', centerX, centerY);
+        
+        // Find what element is actually at this position
+        const elementAtPoint = document.elementFromPoint(centerX, centerY);
+        log('Element at point:', elementAtPoint?.tagName, elementAtPoint?.className);
+        
+        // Try clicking the element at point
+        if (elementAtPoint) {
+          // Scroll element into view first
+          elementAtPoint.scrollIntoView({ block: 'center', behavior: 'instant' });
+          await sleep(50);
+          
+          // Try focus + Enter key approach
+          elementAtPoint.focus();
+          elementAtPoint.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+          elementAtPoint.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+          
+          await sleep(50);
+          
+          // Also try simulated click
+          simulateClick(elementAtPoint);
+          
+          // Try clicking via coordinates using elementFromPoint again
+          await sleep(50);
+          const newRect = elementAtPoint.getBoundingClientRect();
+          const newX = newRect.left + newRect.width / 2;
+          const newY = newRect.top + newRect.height / 2;
+          
+          const finalTarget = document.elementFromPoint(newX, newY);
+          if (finalTarget && finalTarget !== elementAtPoint) {
+            log('Clicking final target:', finalTarget.tagName);
+            simulateClick(finalTarget);
           }
-          // Check for data-testid as potential click target
-          if (current.hasAttribute('data-testid')) {
-            clickTarget = current;
-          }
-          current = current.parentElement;
         }
         
-        log('Click target:', clickTarget.tagName, clickTarget.className);
-        simulateClick(clickTarget);
-        
-        // Also try img directly after a small delay
-        await sleep(50);
+        // Also try img directly
         simulateClick(img);
         
         return true;
