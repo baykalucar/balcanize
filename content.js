@@ -48,6 +48,7 @@
 
   /**
    * Create an emoji overlay on top of the WhatsApp sprite image
+   * Uses a clickable overlay to intercept all clicks before WhatsApp sees them
    */
   function createEmojiOverlay(imgElement, emoji, button) {
     // Hide the original sprite
@@ -69,41 +70,44 @@
     
     overlay.textContent = emoji;
     
-    // Add click interceptor to the button
+    // Create clickable overlay that covers the ENTIRE button
     if (!button.hasAttribute('data-balcanize-intercepted')) {
       button.setAttribute('data-balcanize-intercepted', 'true');
+      button.style.position = 'relative';
       
-      // Handler function for all event types
-      const interceptHandler = (e) => {
-        // Check FIRST if we're already sending - if so, let the click through completely
+      // Create invisible clickable layer on top of button
+      const clickLayer = document.createElement('div');
+      clickLayer.className = 'balcanize-click-layer';
+      clickLayer.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 9999; cursor: pointer; background: transparent;';
+      clickLayer.setAttribute('data-balcanize-emoji', emoji);
+      
+      // This layer captures ALL clicks
+      clickLayer.addEventListener('click', (e) => {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        
         if (isSendingReaction) {
-          log('Skipping intercept - already sending reaction, letting click through');
-          return; // Don't block anything, let WhatsApp handle it
+          log('Click layer: already sending, ignoring');
+          return;
         }
         
-        const targetEmoji = button.getAttribute('data-balcanize-emoji');
-        if (targetEmoji) {
-          // Only NOW block the event, after we know we want to intercept
+        const targetEmoji = clickLayer.getAttribute('data-balcanize-emoji');
+        log('Click layer clicked! Sending emoji:', targetEmoji);
+        sendCustomReaction(targetEmoji);
+      });
+      
+      // Also block pointer events
+      clickLayer.addEventListener('pointerdown', (e) => {
+        if (!isSendingReaction) {
           e.stopImmediatePropagation();
           e.stopPropagation();
           e.preventDefault();
-          
-          // Only trigger reaction on pointerup or click (not on pointerdown)
-          if (e.type === 'pointerup' || e.type === 'click' || e.type === 'mouseup') {
-            log('Intercepted', e.type, '- sending emoji:', targetEmoji);
-            sendCustomReaction(targetEmoji);
-          } else {
-            log('Blocked', e.type, 'event');
-          }
         }
-      };
+      });
       
-      // Intercept ALL relevant events in capture phase
-      button.addEventListener('pointerdown', interceptHandler, true);
-      button.addEventListener('pointerup', interceptHandler, true);
-      button.addEventListener('mousedown', interceptHandler, true);
-      button.addEventListener('mouseup', interceptHandler, true);
-      button.addEventListener('click', interceptHandler, true);
+      button.appendChild(clickLayer);
+      log('Created click layer for', emoji);
     }
     
     log('Created overlay for', emoji);
