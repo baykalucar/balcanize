@@ -227,12 +227,23 @@
       if (img.alt === emoji || img.getAttribute('data-plain-text') === emoji) {
         log('Found emoji image with alt:', img.alt);
         
-        // Get the visual center of the image
+        // FIRST scroll the emoji into view
+        img.scrollIntoView({ block: 'center', behavior: 'instant' });
+        await sleep(100);
+        
+        // NOW get the visual center of the image (after scroll)
         const rect = img.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        log('Emoji position:', centerX, centerY);
+        log('Emoji position after scroll:', centerX, centerY);
+        
+        // Check if position is valid (on screen)
+        if (centerY < 0 || centerY > window.innerHeight || centerX < 0 || centerX > window.innerWidth) {
+          log('Emoji still off-screen, trying direct click');
+          simulateClick(img);
+          return true;
+        }
         
         // Find what element is actually at this position
         const elementAtPoint = document.elementFromPoint(centerX, centerY);
@@ -240,10 +251,6 @@
         
         // Try clicking the element at point
         if (elementAtPoint) {
-          // Scroll element into view first
-          elementAtPoint.scrollIntoView({ block: 'center', behavior: 'instant' });
-          await sleep(50);
-          
           // Try focus + Enter key approach
           elementAtPoint.focus();
           elementAtPoint.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
