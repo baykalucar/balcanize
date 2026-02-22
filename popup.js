@@ -269,7 +269,7 @@ const EMOJI_NAMES = {
   '🥥': 'coconut hindistan cevizi',
   '🥝': 'kiwi',
   '🍅': 'tomato domates',
-  '🍆': 'eggplant aubergine patlıcan mor',
+  '🍆': 'eggplant aubergine patlıcan mor balcan',
   '🥑': 'avocado avokado',
   '🥦': 'broccoli brokoli',
   '🥒': 'cucumber salatalık',
