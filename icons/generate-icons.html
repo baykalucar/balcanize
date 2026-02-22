@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Icon Generator - WhatsApp Emoji Customizer</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #128c7e; }
+    .icon-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .icon-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .download-btn {
+      display: block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .download-btn:hover {
+      background: #128c7e;
+    }
+    .instructions {
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Icon Generator</h1>
+  
+  <div class="instructions">
+    <strong>Talimatlar:</strong>
+    <ol>
+      <li>Bu sayfayı Chrome'da açın</li>
+      <li>Her ikon için "PNG İndir" butonuna tıklayın</li>
+      <li>İndirilen dosyaları <code>icons/</code> klasörüne kaydedin</li>
+      <li>Dosya adlarını değiştirin: icon16.png, icon48.png, icon128.png</li>
+    </ol>
+  </div>
+
+  <div class="icon-container">
+    <div class="icon-box">
+      <h3>16x16</h3>
+      <canvas id="canvas16" width="16" height="16"></canvas>
+      <a id="download16" class="download-btn" download="icon16.png">PNG İndir</a>
+    </div>
+    <div class="icon-box">
+      <h3>48x48</h3>
+      <canvas id="canvas48" width="48" height="48"></canvas>
+      <a id="download48" class="download-btn" download="icon48.png">PNG İndir</a>
+    </div>
+    <div class="icon-box">
+      <h3>128x128</h3>
+      <canvas id="canvas128" width="128" height="128"></canvas>
+      <a id="download128" class="download-btn" download="icon128.png">PNG İndir</a>
+    </div>
+  </div>
+
+  <script>
+    function createIcon(canvasId, downloadId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#25d366');
+      gradient.addColorStop(1, '#128c7e');
+      
+      // Draw rounded rectangle
+      const radius = size * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // Draw emoji
+      ctx.font = `${size * 0.6}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('😊', size / 2, size / 2 + size * 0.05);
+      
+      // Set download link
+      const downloadBtn = document.getElementById(downloadId);
+      downloadBtn.href = canvas.toDataURL('image/png');
+    }
+    
+    // Generate all icons
+    createIcon('canvas16', 'download16', 16);
+    createIcon('canvas48', 'download48', 48);
+    createIcon('canvas128', 'download128', 128);
+  </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Customizer - Standalone Test</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>� <span data-i18n="popupTitle">Emoji Customizer</span></h1>
+      <p class="subtitle" data-i18n="popupSubtitle">Custom reaction emojis for WhatsApp Web (TEST MODE)</p>
+    </header>
+
+    <section class="current-emojis">
+      <h2 data-i18n="selectedEmojis">Selected Emojis</h2>
+      <p class="hint" data-i18n="dragHint">Drag to reorder</p>
+      <div id="selectedEmojis" class="emoji-list sortable">
+      </div>
+    </section>
+
+    <section class="emoji-picker">
+      <h2 data-i18n="addEmoji">Add Emoji</h2>
+      <div class="search-box">
+        <input type="text" id="emojiSearch" data-i18n-placeholder="searchPlaceholder" placeholder="Search emoji...">
+      </div>
+      <div id="emojiGrid" class="emoji-grid">
+      </div>
+    </section>
+
+    <footer>
+      <button id="resetBtn" class="btn btn-secondary" data-i18n="resetBtn">Reset</button>
+      <button id="saveBtn" class="btn btn-primary" data-i18n="saveBtn">Save</button>
+    </footer>
+
+    <div id="toast" class="toast hidden" data-i18n="savedToast">Saved!</div>
+  </div>
+
+  <script>
+    // Detect browser language
+    const userLang = navigator.language.substring(0, 2);
+    
+    // i18n messages
+    const messages = {
+      en: {
+        popupTitle: "Emoji Customizer",
+        popupSubtitle: "Custom reaction emojis for WhatsApp Web",
+        selectedEmojis: "Selected Emojis",
+        dragHint: "Drag to reorder",
+        addEmoji: "Add Emoji",
+        searchPlaceholder: "Search emoji...",
+        resetBtn: "Reset",
+        saveBtn: "Save",
+        savedToast: "Saved!",
+        confirmReset: "Are you sure you want to reset to default emojis?",
+        clickToAdd: "Click to add",
+        remove: "Remove"
+      },
+      tr: {
+        popupTitle: "Emoji Özelleştirici",
+        popupSubtitle: "WhatsApp Web için özel tepki emojileri",
+        selectedEmojis: "Seçili Emojiler",
+        dragHint: "Sürükleyerek sıralayabilirsiniz",
+        addEmoji: "Emoji Ekle",
+        searchPlaceholder: "Emoji ara...",
+        resetBtn: "Sıfırla",
+        saveBtn: "Kaydet",
+        savedToast: "Kaydedildi!",
+        confirmReset: "Emojileri varsayılana sıfırlamak istediğinize emin misiniz?",
+        clickToAdd: "Eklemek için tıkla",
+        remove: "Kaldır"
+      }
+    };
+    
+    const currentLang = messages[userLang] ? userLang : 'en';
+    
+    // Mock Chrome API for standalone testing
+    // Use window.chrome to override the browser's chrome object
+    window.chrome = {
+      storage: {
+        sync: {
+          get: function(keys, callback) {
+            const stored = localStorage.getItem('customEmojis');
+            const result = stored ? { customEmojis: JSON.parse(stored) } : {};
+            callback(result);
+          },
+          set: function(items, callback) {
+            if (items.customEmojis) {
+              localStorage.setItem('customEmojis', JSON.stringify(items.customEmojis));
+            }
+            if (callback) callback();
+          }
+        },
+        onChanged: {
+          addListener: function() {}
+        }
+      },
+      i18n: {
+        getMessage: function(key) {
+          return messages[currentLang][key] || messages['en'][key] || '';
+        }
+      }
+    };
+    
+    console.log('Test mode - Language:', currentLang);
+  </script>
+  <script src="popup.js"></script>
+</body>
+</html>

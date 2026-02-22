@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "Balcanize - WhatsApp Emoji Tepki Özelleştirici",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "WhatsApp Web emoji tepkilerini favori emojilerinizle özelleştirin. Sınırsız emoji ekleyin, sürükleyerek sıralayın.",
+    "description": "Extension description"
+  },
+  "popupTitle": {
+    "message": "Emoji Özelleştirici",
+    "description": "Popup title"
+  },
+  "popupSubtitle": {
+    "message": "WhatsApp Web için özel tepki emojileri",
+    "description": "Popup subtitle"
+  },
+  "selectedEmojis": {
+    "message": "Seçili Emojiler",
+    "description": "Selected emojis section title"
+  },
+  "dragHint": {
+    "message": "Sürükleyerek sıralayabilirsiniz",
+    "description": "Hint for drag and drop"
+  },
+  "addEmoji": {
+    "message": "Emoji Ekle",
+    "description": "Add emoji section title"
+  },
+  "searchPlaceholder": {
+    "message": "Emoji ara...",
+    "description": "Search input placeholder"
+  },
+  "resetBtn": {
+    "message": "Sıfırla",
+    "description": "Reset button text"
+  },
+  "saveBtn": {
+    "message": "Kaydet",
+    "description": "Save button text"
+  },
+  "savedToast": {
+    "message": "Kaydedildi!",
+    "description": "Toast message after saving"
+  },
+  "confirmReset": {
+    "message": "Emojileri varsayılana sıfırlamak istediğinize emin misiniz?",
+    "description": "Reset confirmation message"
+  },
+  "clickToAdd": {
+    "message": "Eklemek için tıkla",
+    "description": "Tooltip for emoji grid"
+  },
+  "remove": {
+    "message": "Kaldır",
+    "description": "Remove button tooltip"
+  },
+  "selectEmojis": {
+    "message": "Emoji seçin...",
+    "description": "Empty state text"
+  }
+}

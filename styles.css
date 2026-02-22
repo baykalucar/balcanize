@@ -1,0 +1,45 @@
+/**
+ * WhatsApp Emoji Customizer - Injected Styles
+ * These styles are injected into WhatsApp Web to customize the reaction menu
+ */
+
+/* Custom scrollbar for emoji container when many emojis selected */
+.emoji-customizer-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.emoji-customizer-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.emoji-customizer-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.emoji-customizer-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.emoji-customizer-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure reaction menu can accommodate more emojis */
+[data-emoji-customized="true"] {
+  min-width: auto !important;
+}
+
+/* Animation for emoji buttons */
+[data-emoji-customized="true"] div[role="button"] {
+  transition: transform 0.1s ease;
+}
+
+[data-emoji-customized="true"] div[role="button"]:hover {
+  transform: scale(1.15);
+}
+
+[data-emoji-customized="true"] div[role="button"]:active {
+  transform: scale(0.95);
+}

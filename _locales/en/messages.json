@@ -1,0 +1,62 @@
+{
+  "extName": {
+    "message": "Balcanize - WhatsApp Emoji Reaction Customizer",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Customize WhatsApp Web emoji reactions with your favorite emojis. Add unlimited emojis, drag to reorder.",
+    "description": "Extension description"
+  },
+  "popupTitle": {
+    "message": "Emoji Customizer",
+    "description": "Popup title"
+  },
+  "popupSubtitle": {
+    "message": "Custom reaction emojis for WhatsApp Web",
+    "description": "Popup subtitle"
+  },
+  "selectedEmojis": {
+    "message": "Selected Emojis",
+    "description": "Selected emojis section title"
+  },
+  "dragHint": {
+    "message": "Drag to reorder",
+    "description": "Hint for drag and drop"
+  },
+  "addEmoji": {
+    "message": "Add Emoji",
+    "description": "Add emoji section title"
+  },
+  "searchPlaceholder": {
+    "message": "Search emoji...",
+    "description": "Search input placeholder"
+  },
+  "resetBtn": {
+    "message": "Reset",
+    "description": "Reset button text"
+  },
+  "saveBtn": {
+    "message": "Save",
+    "description": "Save button text"
+  },
+  "savedToast": {
+    "message": "Saved!",
+    "description": "Toast message after saving"
+  },
+  "confirmReset": {
+    "message": "Are you sure you want to reset to default emojis?",
+    "description": "Reset confirmation message"
+  },
+  "clickToAdd": {
+    "message": "Click to add",
+    "description": "Tooltip for emoji grid"
+  },
+  "remove": {
+    "message": "Remove",
+    "description": "Remove button tooltip"
+  },
+  "selectEmojis": {
+    "message": "Select emojis...",
+    "description": "Empty state text"
+  }
+}

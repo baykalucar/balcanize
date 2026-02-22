@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Customizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>� <span data-i18n="popupTitle">Emoji Customizer</span></h1>
+      <p class="subtitle" data-i18n="popupSubtitle">Custom reaction emojis for WhatsApp Web</p>
+    </header>
+
+    <section class="current-emojis">
+      <h2 data-i18n="selectedEmojis">Selected Emojis</h2>
+      <p class="hint" data-i18n="dragHint">Drag to reorder</p>
+      <div id="selectedEmojis" class="emoji-list sortable">
+        <!-- Selected emojis will be rendered here -->
+      </div>
+    </section>
+
+    <section class="emoji-picker">
+      <h2 data-i18n="addEmoji">Add Emoji</h2>
+      <div class="search-box">
+        <input type="text" id="emojiSearch" data-i18n-placeholder="searchPlaceholder" placeholder="Search emoji...">
+      </div>
+      <div id="emojiGrid" class="emoji-grid">
+        <!-- Available emojis will be rendered here -->
+      </div>
+    </section>
+
+    <footer>
+      <button id="resetBtn" class="btn btn-secondary" data-i18n="resetBtn">Reset</button>
+      <button id="saveBtn" class="btn btn-primary" data-i18n="saveBtn">Save</button>
+    </footer>
+
+    <div id="toast" class="toast hidden" data-i18n="savedToast">Saved!</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

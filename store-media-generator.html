@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrome Web Store Media Generator - Balcanize</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      padding: 40px;
+      color: #fff;
+    }
+    h1 { text-align: center; margin-bottom: 10px; font-size: 28px; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 40px; }
+    .section { margin-bottom: 50px; background: #fff1; padding: 30px; border-radius: 16px; }
+    .section h2 { color: #25d366; margin-bottom: 5px; font-size: 20px; }
+    .section .specs { color: #888; font-size: 13px; margin-bottom: 20px; }
+    .canvas-container { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 15px;
+    }
+    canvas { 
+      border: 2px solid #333; 
+      border-radius: 8px; 
+      max-width: 100%;
+      height: auto;
+    }
+    .download-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    }
+    .screenshots { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+    .screenshot-item { text-align: center; }
+    .screenshot-item p { margin-top: 10px; color: #aaa; font-size: 12px; }
+    .instructions {
+      background: #25d36620;
+      border: 1px solid #25d366;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+    .instructions h3 { color: #25d366; margin-bottom: 10px; }
+    .instructions ol { padding-left: 20px; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <h1>🍆 Balcanize - Store Media Generator</h1>
+  <p class="subtitle">Chrome Web Store için gerekli görseller</p>
+
+  <div class="instructions">
+    <h3>📋 Talimatlar</h3>
+    <ol>
+      <li>Sayfanın yüklenmesini bekleyin (görseller otomatik oluşturulacak)</li>
+      <li>Her görsel altındaki "PNG İndir" butonuna tıklayın</li>
+      <li>İndirilen dosyaları Chrome Web Store Developer Console'a yükleyin</li>
+    </ol>
+  </div>
+
+  <!-- Screenshots Section -->
+  <div class="section">
+    <h2>📸 Screenshots (1280x800)</h2>
+    <p class="specs">En az 1 adet gerekli, maksimum 5 adet • JPEG veya PNG</p>
+    <div class="screenshots">
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshot1" width="1280" height="800"></canvas>
+          <a id="download-screenshot1" class="download-btn" download="screenshot-1-popup.png">PNG İndir</a>
+        </div>
+        <p>Screenshot 1: Extension Popup</p>
+      </div>
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshot2" width="1280" height="800"></canvas>
+          <a id="download-screenshot2" class="download-btn" download="screenshot-2-whatsapp.png">PNG İndir</a>
+        </div>
+        <p>Screenshot 2: WhatsApp Web Integration</p>
+      </div>
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshot3" width="1280" height="800"></canvas>
+          <a id="download-screenshot3" class="download-btn" download="screenshot-3-features.png">PNG İndir</a>
+        </div>
+        <p>Screenshot 3: Features Overview</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Turkish Localized Screenshots Section -->
+  <div class="section">
+    <h2>🇹🇷 Turkish Screenshots (1280x800)</h2>
+    <p class="specs">Türkçe lokalize screenshot'lar • JPEG veya PNG</p>
+    <div class="screenshots">
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshotTR1" width="1280" height="800"></canvas>
+          <a id="download-screenshotTR1" class="download-btn" download="screenshot-tr-1-popup.png">PNG İndir</a>
+        </div>
+        <p>Screenshot TR 1: Extension Popup (Türkçe)</p>
+      </div>
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshotTR2" width="1280" height="800"></canvas>
+          <a id="download-screenshotTR2" class="download-btn" download="screenshot-tr-2-whatsapp.png">PNG İndir</a>
+        </div>
+        <p>Screenshot TR 2: WhatsApp Integration (Türkçe)</p>
+      </div>
+      <div class="screenshot-item">
+        <div class="canvas-container">
+          <canvas id="screenshotTR3" width="1280" height="800"></canvas>
+          <a id="download-screenshotTR3" class="download-btn" download="screenshot-tr-3-features.png">PNG İndir</a>
+        </div>
+        <p>Screenshot TR 3: Features (Türkçe)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Small Promo Tile -->
+  <div class="section">
+    <h2>🏷️ Small Promo Tile (440x280)</h2>
+    <p class="specs">Opsiyonel ama önerilen • JPEG veya PNG</p>
+    <div class="canvas-container">
+      <canvas id="smallPromo" width="440" height="280"></canvas>
+      <a id="download-smallPromo" class="download-btn" download="small-promo-tile.png">PNG İndir</a>
+    </div>
+  </div>
+
+  <!-- Marquee Promo Tile -->
+  <div class="section">
+    <h2>🎬 Marquee Promo Tile (1400x560)</h2>
+    <p class="specs">Opsiyonel - Featured için gerekli • JPEG veya PNG</p>
+    <div class="canvas-container">
+      <canvas id="marqueePromo" width="1400" height="560"></canvas>
+      <a id="download-marqueePromo" class="download-btn" download="marquee-promo-tile.png">PNG İndir</a>
+    </div>
+  </div>
+
+  <script>
+    // WhatsApp Colors
+    const COLORS = {
+      whatsappGreen: '#25d366',
+      whatsappDark: '#128c7e',
+      whatsappBg: '#0b141a',
+      whatsappChat: '#0b141a',
+      whatsappSidebar: '#111b21',
+      white: '#ffffff',
+      lightGray: '#e9edef',
+      darkText: '#111b21'
+    };
+
+    // Helper: Draw rounded rectangle
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    // Helper: Draw WhatsApp-style gradient background
+    function drawGradientBg(ctx, w, h) {
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, '#075e54');
+      gradient.addColorStop(0.5, '#128c7e');
+      gradient.addColorStop(1, '#25d366');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // Helper: Draw app icon
+    function drawIcon(ctx, x, y, size) {
+      // Green rounded square
+      const gradient = ctx.createLinearGradient(x, y, x + size, y + size);
+      gradient.addColorStop(0, '#25d366');
+      gradient.addColorStop(1, '#128c7e');
+      
+      roundRect(ctx, x, y, size, size, size * 0.2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // Eggplant emoji
+      ctx.font = `${size * 0.6}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🍆', x + size/2, y + size/2 + size*0.05);
+    }
+
+    // Helper: Draw popup mockup
+    function drawPopupMockup(ctx, x, y, scale = 1) {
+      const w = 360 * scale;
+      const h = 500 * scale;
+      
+      // Shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 20 * scale;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 10 * scale;
+      
+      // Popup background
+      roundRect(ctx, x, y, w, h, 12 * scale);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      
+      ctx.shadowColor = 'transparent';
+      
+      // Header
+      const headerGradient = ctx.createLinearGradient(x, y, x + w, y + 80 * scale);
+      headerGradient.addColorStop(0, '#25d366');
+      headerGradient.addColorStop(1, '#128c7e');
+      
+      roundRect(ctx, x, y, w, 80 * scale, 12 * scale);
+      ctx.fillStyle = headerGradient;
+      ctx.fill();
+      ctx.fillStyle = headerGradient;
+      ctx.fillRect(x, y + 60 * scale, w, 20 * scale);
+      
+      // Header text
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${18 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize', x + w/2, y + 35 * scale);
+      ctx.font = `${12 * scale}px -apple-system, sans-serif`;
+      ctx.fillText('WhatsApp Emoji Customizer', x + w/2, y + 58 * scale);
+      
+      // Selected emojis section
+      ctx.fillStyle = '#075e54';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('Selected Emojis', x + 20 * scale, y + 110 * scale);
+      
+      // Emoji chips
+      const selectedEmojis = ['🍆', '❤️', '😂', '🔥', '👍', '😍', '🎉', '💯'];
+      let chipX = x + 20 * scale;
+      selectedEmojis.forEach((emoji, i) => {
+        roundRect(ctx, chipX, y + 125 * scale, 38 * scale, 38 * scale, 8 * scale);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fill();
+        ctx.font = `${22 * scale}px "Segoe UI Emoji"`;
+        ctx.textAlign = 'center';
+        ctx.fillText(emoji, chipX + 19 * scale, y + 150 * scale);
+        chipX += 42 * scale;
+      });
+      
+      // Emoji grid section
+      ctx.fillStyle = '#075e54';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('Add Emoji', x + 20 * scale, y + 195 * scale);
+      
+      // Search box
+      roundRect(ctx, x + 20 * scale, y + 210 * scale, w - 40 * scale, 40 * scale, 20 * scale);
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fill();
+      ctx.fillStyle = '#999';
+      ctx.font = `${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('🔍 Search emoji...', x + 40 * scale, y + 235 * scale);
+      
+      // Emoji grid
+      const gridEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
+                          '🙂', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗',
+                          '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝',
+                          '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐'];
+      
+      let gridX = x + 20 * scale;
+      let gridY = y + 265 * scale;
+      gridEmojis.forEach((emoji, i) => {
+        if (i > 0 && i % 8 === 0) {
+          gridX = x + 20 * scale;
+          gridY += 40 * scale;
+        }
+        ctx.font = `${24 * scale}px "Segoe UI Emoji"`;
+        ctx.textAlign = 'center';
+        ctx.fillText(emoji, gridX + 20 * scale, gridY + 25 * scale);
+        gridX += 40 * scale;
+      });
+      
+      // Buttons
+      const btnY = y + h - 60 * scale;
+      
+      // Reset button
+      roundRect(ctx, x + 20 * scale, btnY, (w - 50 * scale) / 2, 40 * scale, 8 * scale);
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fill();
+      ctx.fillStyle = '#666';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Reset', x + 20 * scale + (w - 50 * scale) / 4, btnY + 25 * scale);
+      
+      // Save button
+      const saveBtnGradient = ctx.createLinearGradient(x + w/2 + 5 * scale, btnY, x + w - 20 * scale, btnY + 40 * scale);
+      saveBtnGradient.addColorStop(0, '#25d366');
+      saveBtnGradient.addColorStop(1, '#128c7e');
+      roundRect(ctx, x + w/2 + 5 * scale, btnY, (w - 50 * scale) / 2, 40 * scale, 8 * scale);
+      ctx.fillStyle = saveBtnGradient;
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Save', x + w/2 + 5 * scale + (w - 50 * scale) / 4, btnY + 25 * scale);
+    }
+
+    // Screenshot 1: Extension Popup
+    function drawScreenshot1() {
+      const canvas = document.getElementById('screenshot1');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // Background gradient
+      drawGradientBg(ctx, w, h);
+      
+      // Pattern overlay
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      for (let i = 0; i < w; i += 40) {
+        for (let j = 0; j < h; j += 40) {
+          ctx.fillRect(i, j, 20, 20);
+        }
+      }
+      
+      // Title
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 48px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize', w/2, 100);
+      ctx.font = '24px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText('Customize Your WhatsApp Reactions', w/2, 145);
+      
+      // Draw popup mockup centered
+      drawPopupMockup(ctx, (w - 360) / 2, 180, 1);
+      
+      // Feature badges at bottom
+      const features = ['✅ Unlimited Emojis', '✅ Drag & Drop', '✅ Sync Across Devices'];
+      ctx.font = 'bold 18px -apple-system, sans-serif';
+      ctx.fillStyle = '#fff';
+      features.forEach((f, i) => {
+        ctx.fillText(f, 200 + i * 350, h - 50);
+      });
+      
+      document.getElementById('download-screenshot1').href = canvas.toDataURL('image/png');
+    }
+
+    // Screenshot 2: WhatsApp Integration
+    function drawScreenshot2() {
+      const canvas = document.getElementById('screenshot2');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // WhatsApp dark background
+      ctx.fillStyle = COLORS.whatsappBg;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Sidebar
+      ctx.fillStyle = COLORS.whatsappSidebar;
+      ctx.fillRect(0, 0, 400, h);
+      
+      // Chat header
+      ctx.fillStyle = '#202c33';
+      ctx.fillRect(400, 0, w - 400, 60);
+      
+      // Chat area
+      ctx.fillStyle = '#0b141a';
+      ctx.fillRect(400, 60, w - 400, h - 120);
+      
+      // Input area
+      ctx.fillStyle = '#202c33';
+      ctx.fillRect(400, h - 60, w - 400, 60);
+      
+      // Sample chat messages
+      const messages = [
+        { text: 'Hey! Check out this new emoji extension! 🍆', sent: false, y: 150 },
+        { text: 'It lets you customize WhatsApp reactions!', sent: true, y: 230 },
+        { text: 'Wow that sounds amazing! 😍', sent: false, y: 310 },
+      ];
+      
+      messages.forEach(msg => {
+        const msgW = ctx.measureText(msg.text).width + 80;
+        const msgX = msg.sent ? w - msgW - 50 : 450;
+        
+        roundRect(ctx, msgX, msg.y, Math.min(msgW, 400), 50, 8);
+        ctx.fillStyle = msg.sent ? '#005c4b' : '#202c33';
+        ctx.fill();
+        
+        ctx.fillStyle = '#e9edef';
+        ctx.font = '16px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(msg.text, msgX + 15, msg.y + 32);
+      });
+      
+      // Reaction menu popup
+      const reactionY = 380;
+      const reactionX = 500;
+      
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      roundRect(ctx, reactionX, reactionY, 380, 70, 35);
+      ctx.fillStyle = '#233138';
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      
+      // Custom reactions
+      const reactions = ['🍆', '❤️', '😂', '🔥', '👍', '😍', '➕'];
+      ctx.font = '32px "Segoe UI Emoji"';
+      ctx.textAlign = 'center';
+      reactions.forEach((emoji, i) => {
+        ctx.fillText(emoji, reactionX + 30 + i * 50, reactionY + 45);
+      });
+      
+      // Arrow pointing to reactions
+      ctx.strokeStyle = '#25d366';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(reactionX + 190, reactionY + 90);
+      ctx.lineTo(reactionX + 190, reactionY + 150);
+      ctx.stroke();
+      
+      // Label
+      roundRect(ctx, reactionX + 90, reactionY + 160, 200, 45, 8);
+      ctx.fillStyle = '#25d366';
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Your Custom Emojis!', reactionX + 190, reactionY + 188);
+      
+      // Title overlay
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      roundRect(ctx, 40, 40, 320, 80, 12);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 24px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🍆 Balcanize', 70, 75);
+      ctx.font = '14px -apple-system, sans-serif';
+      ctx.fillStyle = '#25d366';
+      ctx.fillText('Works seamlessly with WhatsApp Web', 70, 100);
+      
+      document.getElementById('download-screenshot2').href = canvas.toDataURL('image/png');
+    }
+
+    // Screenshot 3: Features
+    function drawScreenshot3() {
+      const canvas = document.getElementById('screenshot3');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, '#0f2027');
+      gradient.addColorStop(0.5, '#203a43');
+      gradient.addColorStop(1, '#2c5364');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Title
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 52px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize Features', w/2, 80);
+      
+      // Feature cards
+      const features = [
+        { icon: '♾️', title: 'Unlimited Emojis', desc: 'Add as many emojis as you want to your reaction menu' },
+        { icon: '🔄', title: 'Drag & Drop', desc: 'Easily reorder your favorite emojis' },
+        { icon: '☁️', title: 'Cloud Sync', desc: 'Your preferences sync across all devices' },
+        { icon: '🌍', title: 'Multi-Language', desc: 'Available in English and Turkish' },
+        { icon: '🔒', title: 'Privacy First', desc: 'No data collection, works locally' },
+        { icon: '⚡', title: 'Lightning Fast', desc: 'Instant emoji customization' },
+      ];
+      
+      const cardW = 360;
+      const cardH = 180;
+      const startX = (w - (cardW * 3 + 40)) / 2;
+      const startY = 140;
+      
+      features.forEach((f, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = startX + col * (cardW + 20);
+        const y = startY + row * (cardH + 20);
+        
+        // Card shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 5;
+        
+        // Card background
+        roundRect(ctx, x, y, cardW, cardH, 16);
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fill();
+        
+        ctx.shadowColor = 'transparent';
+        
+        // Card border
+        ctx.strokeStyle = 'rgba(37, 211, 102, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Icon
+        ctx.font = '48px "Segoe UI Emoji"';
+        ctx.textAlign = 'center';
+        ctx.fillText(f.icon, x + 60, y + 70);
+        
+        // Title
+        ctx.fillStyle = '#25d366';
+        ctx.font = 'bold 22px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(f.title, x + 110, y + 55);
+        
+        // Description
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.font = '15px -apple-system, sans-serif';
+        
+        // Word wrap
+        const words = f.desc.split(' ');
+        let line = '';
+        let lineY = y + 85;
+        words.forEach(word => {
+          const testLine = line + word + ' ';
+          if (ctx.measureText(testLine).width > cardW - 130) {
+            ctx.fillText(line, x + 110, lineY);
+            line = word + ' ';
+            lineY += 22;
+          } else {
+            line = testLine;
+          }
+        });
+        ctx.fillText(line, x + 110, lineY);
+      });
+      
+      // Bottom CTA
+      roundRect(ctx, w/2 - 200, h - 120, 400, 60, 30);
+      const btnGradient = ctx.createLinearGradient(w/2 - 200, h - 120, w/2 + 200, h - 60);
+      btnGradient.addColorStop(0, '#25d366');
+      btnGradient.addColorStop(1, '#128c7e');
+      ctx.fillStyle = btnGradient;
+      ctx.fill();
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 22px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Install Now - It\'s Free! 🚀', w/2, h - 82);
+      
+      document.getElementById('download-screenshot3').href = canvas.toDataURL('image/png');
+    }
+
+    // Turkish Popup Mockup Helper
+    function drawPopupMockupTR(ctx, x, y, scale = 1) {
+      const w = 360 * scale;
+      const h = 500 * scale;
+      
+      // Shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 20 * scale;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 10 * scale;
+      
+      // Popup background
+      roundRect(ctx, x, y, w, h, 12 * scale);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      
+      ctx.shadowColor = 'transparent';
+      
+      // Header
+      const headerGradient = ctx.createLinearGradient(x, y, x + w, y + 80 * scale);
+      headerGradient.addColorStop(0, '#25d366');
+      headerGradient.addColorStop(1, '#128c7e');
+      
+      roundRect(ctx, x, y, w, 80 * scale, 12 * scale);
+      ctx.fillStyle = headerGradient;
+      ctx.fill();
+      ctx.fillStyle = headerGradient;
+      ctx.fillRect(x, y + 60 * scale, w, 20 * scale);
+      
+      // Header text - Turkish
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${18 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize', x + w/2, y + 35 * scale);
+      ctx.font = `${12 * scale}px -apple-system, sans-serif`;
+      ctx.fillText('WhatsApp Emoji Özelleştirici', x + w/2, y + 58 * scale);
+      
+      // Selected emojis section - Turkish
+      ctx.fillStyle = '#075e54';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('Seçili Emojiler', x + 20 * scale, y + 110 * scale);
+      
+      // Emoji chips
+      const selectedEmojis = ['🍆', '❤️', '😂', '🔥', '👍', '😍', '🎉', '💯'];
+      let chipX = x + 20 * scale;
+      selectedEmojis.forEach((emoji, i) => {
+        roundRect(ctx, chipX, y + 125 * scale, 38 * scale, 38 * scale, 8 * scale);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fill();
+        ctx.font = `${22 * scale}px "Segoe UI Emoji"`;
+        ctx.textAlign = 'center';
+        ctx.fillText(emoji, chipX + 19 * scale, y + 150 * scale);
+        chipX += 42 * scale;
+      });
+      
+      // Emoji grid section - Turkish
+      ctx.fillStyle = '#075e54';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('Emoji Ekle', x + 20 * scale, y + 195 * scale);
+      
+      // Search box - Turkish
+      roundRect(ctx, x + 20 * scale, y + 210 * scale, w - 40 * scale, 40 * scale, 20 * scale);
+      ctx.fillStyle = '#f0f0f0';
+      ctx.fill();
+      ctx.fillStyle = '#999';
+      ctx.font = `${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText('🔍 Emoji ara...', x + 40 * scale, y + 235 * scale);
+      
+      // Emoji grid
+      const gridEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
+                          '🙂', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗',
+                          '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝',
+                          '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐'];
+      
+      let gridX = x + 20 * scale;
+      let gridY = y + 265 * scale;
+      gridEmojis.forEach((emoji, i) => {
+        if (i > 0 && i % 8 === 0) {
+          gridX = x + 20 * scale;
+          gridY += 40 * scale;
+        }
+        ctx.font = `${24 * scale}px "Segoe UI Emoji"`;
+        ctx.textAlign = 'center';
+        ctx.fillText(emoji, gridX + 20 * scale, gridY + 25 * scale);
+        gridX += 40 * scale;
+      });
+      
+      // Buttons - Turkish
+      const btnY = y + h - 60 * scale;
+      
+      // Reset button - Turkish
+      roundRect(ctx, x + 20 * scale, btnY, (w - 50 * scale) / 2, 40 * scale, 8 * scale);
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fill();
+      ctx.fillStyle = '#666';
+      ctx.font = `bold ${14 * scale}px -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Sıfırla', x + 20 * scale + (w - 50 * scale) / 4, btnY + 25 * scale);
+      
+      // Save button - Turkish
+      const saveBtnGradient = ctx.createLinearGradient(x + w/2 + 5 * scale, btnY, x + w - 20 * scale, btnY + 40 * scale);
+      saveBtnGradient.addColorStop(0, '#25d366');
+      saveBtnGradient.addColorStop(1, '#128c7e');
+      roundRect(ctx, x + w/2 + 5 * scale, btnY, (w - 50 * scale) / 2, 40 * scale, 8 * scale);
+      ctx.fillStyle = saveBtnGradient;
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Kaydet', x + w/2 + 5 * scale + (w - 50 * scale) / 4, btnY + 25 * scale);
+    }
+
+    // Turkish Screenshot 1: Extension Popup
+    function drawScreenshotTR1() {
+      const canvas = document.getElementById('screenshotTR1');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // Background gradient
+      drawGradientBg(ctx, w, h);
+      
+      // Pattern overlay
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      for (let i = 0; i < w; i += 40) {
+        for (let j = 0; j < h; j += 40) {
+          ctx.fillRect(i, j, 20, 20);
+        }
+      }
+      
+      // Title - Turkish
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 48px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize', w/2, 100);
+      ctx.font = '24px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText('WhatsApp Tepkilerinizi Özelleştirin', w/2, 145);
+      
+      // Draw popup mockup centered (Turkish version)
+      drawPopupMockupTR(ctx, (w - 360) / 2, 180, 1);
+      
+      // Feature badges at bottom - Turkish
+      const features = ['✅ Sınırsız Emoji', '✅ Sürükle Bırak', '✅ Cihazlar Arası Senkron'];
+      ctx.font = 'bold 18px -apple-system, sans-serif';
+      ctx.fillStyle = '#fff';
+      features.forEach((f, i) => {
+        ctx.fillText(f, 200 + i * 350, h - 50);
+      });
+      
+      document.getElementById('download-screenshotTR1').href = canvas.toDataURL('image/png');
+    }
+
+    // Turkish Screenshot 2: WhatsApp Integration
+    function drawScreenshotTR2() {
+      const canvas = document.getElementById('screenshotTR2');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // WhatsApp dark background
+      ctx.fillStyle = COLORS.whatsappBg;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Sidebar
+      ctx.fillStyle = COLORS.whatsappSidebar;
+      ctx.fillRect(0, 0, 400, h);
+      
+      // Chat header
+      ctx.fillStyle = '#202c33';
+      ctx.fillRect(400, 0, w - 400, 60);
+      
+      // Chat area
+      ctx.fillStyle = '#0b141a';
+      ctx.fillRect(400, 60, w - 400, h - 120);
+      
+      // Input area
+      ctx.fillStyle = '#202c33';
+      ctx.fillRect(400, h - 60, w - 400, 60);
+      
+      // Sample chat messages - Turkish
+      const messages = [
+        { text: 'Selam! Bu yeni emoji eklentisine bak! 🍆', sent: false, y: 150 },
+        { text: 'WhatsApp tepkilerini özelleştiriyor!', sent: true, y: 230 },
+        { text: 'Vay harika görünüyor! 😍', sent: false, y: 310 },
+      ];
+      
+      messages.forEach(msg => {
+        const msgW = ctx.measureText(msg.text).width + 80;
+        const msgX = msg.sent ? w - msgW - 50 : 450;
+        
+        roundRect(ctx, msgX, msg.y, Math.min(msgW, 400), 50, 8);
+        ctx.fillStyle = msg.sent ? '#005c4b' : '#202c33';
+        ctx.fill();
+        
+        ctx.fillStyle = '#e9edef';
+        ctx.font = '16px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(msg.text, msgX + 15, msg.y + 32);
+      });
+      
+      // Reaction menu popup
+      const reactionY = 380;
+      const reactionX = 500;
+      
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      roundRect(ctx, reactionX, reactionY, 380, 70, 35);
+      ctx.fillStyle = '#233138';
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      
+      // Custom reactions
+      const reactions = ['🍆', '❤️', '😂', '🔥', '👍', '😍', '➕'];
+      ctx.font = '32px "Segoe UI Emoji"';
+      ctx.textAlign = 'center';
+      reactions.forEach((emoji, i) => {
+        ctx.fillText(emoji, reactionX + 30 + i * 50, reactionY + 45);
+      });
+      
+      // Arrow pointing to reactions
+      ctx.strokeStyle = '#25d366';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(reactionX + 190, reactionY + 90);
+      ctx.lineTo(reactionX + 190, reactionY + 150);
+      ctx.stroke();
+      
+      // Label - Turkish
+      roundRect(ctx, reactionX + 90, reactionY + 160, 200, 45, 8);
+      ctx.fillStyle = '#25d366';
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Kendi Emojilerin!', reactionX + 190, reactionY + 188);
+      
+      // Title overlay - Turkish
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      roundRect(ctx, 40, 40, 320, 80, 12);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 24px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🍆 Balcanize', 70, 75);
+      ctx.font = '14px -apple-system, sans-serif';
+      ctx.fillStyle = '#25d366';
+      ctx.fillText('WhatsApp Web ile sorunsuz çalışır', 70, 100);
+      
+      document.getElementById('download-screenshotTR2').href = canvas.toDataURL('image/png');
+    }
+
+    // Turkish Screenshot 3: Features
+    function drawScreenshotTR3() {
+      const canvas = document.getElementById('screenshotTR3');
+      const ctx = canvas.getContext('2d');
+      const w = 1280, h = 800;
+      
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, '#0f2027');
+      gradient.addColorStop(0.5, '#203a43');
+      gradient.addColorStop(1, '#2c5364');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Title - Turkish
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 52px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍆 Balcanize Özellikleri', w/2, 80);
+      
+      // Feature cards - Turkish
+      const features = [
+        { icon: '♾️', title: 'Sınırsız Emoji', desc: 'Tepki menüsüne istediğiniz kadar emoji ekleyin' },
+        { icon: '🔄', title: 'Sürükle & Bırak', desc: 'Favori emojilerinizi kolayca sıralayın' },
+        { icon: '☁️', title: 'Bulut Senkron', desc: 'Tercihleriniz tüm cihazlarda senkronize' },
+        { icon: '🌍', title: 'Çoklu Dil', desc: 'İngilizce ve Türkçe desteği' },
+        { icon: '🔒', title: 'Gizlilik Öncelikli', desc: 'Veri toplanmaz, yerel olarak çalışır' },
+        { icon: '⚡', title: 'Çok Hızlı', desc: 'Anında emoji özelleştirme' },
+      ];
+      
+      const cardW = 360;
+      const cardH = 180;
+      const startX = (w - (cardW * 3 + 40)) / 2;
+      const startY = 140;
+      
+      features.forEach((f, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = startX + col * (cardW + 20);
+        const y = startY + row * (cardH + 20);
+        
+        // Card shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 5;
+        
+        // Card background
+        roundRect(ctx, x, y, cardW, cardH, 16);
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fill();
+        
+        ctx.shadowColor = 'transparent';
+        
+        // Card border
+        ctx.strokeStyle = 'rgba(37, 211, 102, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        
+        // Icon
+        ctx.font = '48px "Segoe UI Emoji"';
+        ctx.textAlign = 'center';
+        ctx.fillText(f.icon, x + 60, y + 70);
+        
+        // Title
+        ctx.fillStyle = '#25d366';
+        ctx.font = 'bold 22px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(f.title, x + 110, y + 55);
+        
+        // Description
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.font = '15px -apple-system, sans-serif';
+        
+        // Word wrap
+        const words = f.desc.split(' ');
+        let line = '';
+        let lineY = y + 85;
+        words.forEach(word => {
+          const testLine = line + word + ' ';
+          if (ctx.measureText(testLine).width > cardW - 130) {
+            ctx.fillText(line, x + 110, lineY);
+            line = word + ' ';
+            lineY += 22;
+          } else {
+            line = testLine;
+          }
+        });
+        ctx.fillText(line, x + 110, lineY);
+      });
+      
+      // Bottom CTA - Turkish
+      roundRect(ctx, w/2 - 200, h - 120, 400, 60, 30);
+      const btnGradient = ctx.createLinearGradient(w/2 - 200, h - 120, w/2 + 200, h - 60);
+      btnGradient.addColorStop(0, '#25d366');
+      btnGradient.addColorStop(1, '#128c7e');
+      ctx.fillStyle = btnGradient;
+      ctx.fill();
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 22px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Şimdi Yükle - Ücretsiz! 🚀', w/2, h - 82);
+      
+      document.getElementById('download-screenshotTR3').href = canvas.toDataURL('image/png');
+    }
+
+    // Small Promo Tile (440x280)
+    function drawSmallPromo() {
+      const canvas = document.getElementById('smallPromo');
+      const ctx = canvas.getContext('2d');
+      const w = 440, h = 280;
+      
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, '#075e54');
+      gradient.addColorStop(1, '#25d366');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Pattern
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      for (let i = 0; i < w; i += 30) {
+        for (let j = 0; j < h; j += 30) {
+          if ((i + j) % 60 === 0) ctx.fillRect(i, j, 15, 15);
+        }
+      }
+      
+      // Icon
+      drawIcon(ctx, 30, 30, 80);
+      
+      // Title
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Balcanize', 130, 65);
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText('WhatsApp Emoji Customizer', 130, 92);
+      
+      // Feature list
+      const features = ['✓ Unlimited custom reactions', '✓ Drag & drop reordering', '✓ Syncs across devices'];
+      ctx.font = '15px -apple-system, sans-serif';
+      ctx.fillStyle = '#fff';
+      features.forEach((f, i) => {
+        ctx.fillText(f, 40, 160 + i * 28);
+      });
+      
+      // Emoji preview
+      const emojis = ['🍆', '❤️', '😂', '🔥', '👍'];
+      ctx.font = '28px "Segoe UI Emoji"';
+      emojis.forEach((e, i) => {
+        ctx.fillText(e, 300 + i * 30, 250);
+      });
+      
+      document.getElementById('download-smallPromo').href = canvas.toDataURL('image/png');
+    }
+
+    // Marquee Promo Tile (1400x560)
+    function drawMarqueePromo() {
+      const canvas = document.getElementById('marqueePromo');
+      const ctx = canvas.getContext('2d');
+      const w = 1400, h = 560;
+      
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, '#0f2027');
+      gradient.addColorStop(0.3, '#203a43');
+      gradient.addColorStop(0.6, '#2c5364');
+      gradient.addColorStop(1, '#075e54');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      // Decorative circles
+      ctx.fillStyle = 'rgba(37, 211, 102, 0.1)';
+      ctx.beginPath();
+      ctx.arc(100, 100, 200, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(w - 150, h - 100, 250, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Left side - Text content
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 72px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🍆 Balcanize', 80, 180);
+      
+      ctx.font = '32px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillText('WhatsApp Emoji Reaction Customizer', 80, 240);
+      
+      // Feature highlights
+      const features = [
+        '♾️  Unlimited custom emojis',
+        '🔄  Drag & drop reordering',
+        '☁️  Sync across all devices',
+        '🔒  Privacy-focused'
+      ];
+      
+      ctx.font = '22px -apple-system, sans-serif';
+      ctx.fillStyle = '#fff';
+      features.forEach((f, i) => {
+        ctx.fillText(f, 100, 320 + i * 45);
+      });
+      
+      // CTA Badge
+      roundRect(ctx, 80, h - 90, 280, 50, 25);
+      const btnGradient = ctx.createLinearGradient(80, h - 90, 360, h - 40);
+      btnGradient.addColorStop(0, '#25d366');
+      btnGradient.addColorStop(1, '#128c7e');
+      ctx.fillStyle = btnGradient;
+      ctx.fill();
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 20px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Install Free', 220, h - 58);
+      
+      // Right side - Popup mockup
+      drawPopupMockup(ctx, 850, 30, 1);
+      
+      // Floating emojis decoration
+      const floatingEmojis = ['🍆', '❤️', '😂', '🔥', '👍', '🎉', '💯'];
+      ctx.font = '40px "Segoe UI Emoji"';
+      ctx.textAlign = 'center';
+      floatingEmojis.forEach((e, i) => {
+        const x = 500 + Math.sin(i * 0.8) * 100;
+        const y = 100 + i * 60;
+        ctx.globalAlpha = 0.6;
+        ctx.fillText(e, x, y);
+      });
+      ctx.globalAlpha = 1;
+      
+      document.getElementById('download-marqueePromo').href = canvas.toDataURL('image/png');
+    }
+
+    // Generate all images on load
+    window.onload = function() {
+      setTimeout(() => {
+        drawScreenshot1();
+        drawScreenshot2();
+        drawScreenshot3();
+        drawScreenshotTR1();
+        drawScreenshotTR2();
+        drawScreenshotTR3();
+        drawSmallPromo();
+        drawMarqueePromo();
+        console.log('All store media generated!');
+      }, 100);
+    };
+  </script>
+</body>
+</html>
