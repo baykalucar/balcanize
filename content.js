@@ -73,7 +73,12 @@
     if (!button.hasAttribute('data-balcanize-intercepted')) {
       button.setAttribute('data-balcanize-intercepted', 'true');
       
-      button.addEventListener('click', async (e) => {
+      button.addEventListener('click', (e) => {
+        // IMMEDIATELY stop all propagation - before any async work
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        
         // Skip if we're already sending a reaction (prevent recursion)
         if (isSendingReaction) {
           log('Skipping intercept - already sending reaction');
@@ -82,10 +87,9 @@
         
         const targetEmoji = button.getAttribute('data-balcanize-emoji');
         if (targetEmoji) {
-          e.stopPropagation();
-          e.preventDefault();
           log('Intercepted click, sending emoji:', targetEmoji);
-          await sendCustomReaction(targetEmoji);
+          // Fire and forget - don't await
+          sendCustomReaction(targetEmoji);
         }
       }, true); // capture phase
     }
