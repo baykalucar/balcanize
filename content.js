@@ -59,17 +59,7 @@
     if (!overlay) {
       overlay = document.createElement('span');
       overlay.className = 'balcanize-overlay';
-      overlay.style.cssText = 
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 32px;
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-        line-height: 1;
-        z-index: 10;
-        pointer-events: none;
-      ;
+      overlay.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-family: Apple Color Emoji, Segoe UI Emoji, sans-serif; line-height: 1; z-index: 10; pointer-events: none;';
       parent.style.position = 'relative';
       parent.appendChild(overlay);
     }
